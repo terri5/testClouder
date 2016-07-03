@@ -229,7 +229,7 @@ namespace testClouder28
                 Console.WriteLine("Time expend {0} seconds", watch.ElapsedMilliseconds / 1000);
                 Console.WriteLine("耗费{0}天{1}小时{2}分钟{3}秒", timeSpan.Days, timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
                 log.WriteLine("处理文档数量{0},pv:{1},uv:{2},hit:{3}", handleFileCnt, handlePvFileCnt, handleUvFileCnt, handleHitFileCnt);
-                log.WriteLine("处理有效记录数量 pv:{0},uv:{1},hit:{2}", pvModel.GetRCnt(), uvModel.GetRCnt(), hitModel.GetRCnt());
+                log.WriteLine("处理有效记录数量 pv:{0},uv:{1},hit:{2}", pvModel.GetCnt(), uvModel.GetCnt(), hitModel.GetCnt());
                 log.WriteLine("耗费{0}天{1}小时{2}分钟{3}秒", timeSpan.Days, timeSpan.Hours,timeSpan.Minutes,timeSpan.Seconds);
                 Console.ReadKey();
 
