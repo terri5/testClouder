@@ -44,23 +44,17 @@ namespace testClouder28
         private const string regexQuotes = "\"(.*?)\"";
 
 
-        private static Object syncPvRRcnt = new object();
-        private static Object syncUvRRcnt = new object();
-        private static Object syncHitRRcnt = new object();
         private static Object syncUvF = new object();
         private static Object syncHitF = new object();
         private static Object syncPvF = new object();
         private static Object syncFileCount = new object();
-        private static Object syncPvRCnt = new object();
-        private static Object syncUvRCnt = new object();
-        private static Object syncHitRCnt = new object();
 
 
 
       
         public static System.Collections.Generic.HashSet<string> file2Handle = new System.Collections.Generic.HashSet<string>();
 
-        public static string date2Handle = "20160701";
+        public static string date2Handle = "20160702";
  
         public const int AnlyzeThreadCnt = 48;//总解析线程数
         public const int Write2HbaseThreadCnt = 8;//总写hbase线程数
