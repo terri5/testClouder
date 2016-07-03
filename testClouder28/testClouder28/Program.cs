@@ -66,6 +66,7 @@ namespace testClouder28
         public static FileStream log_err = null;
 
 
+        public static string driver = "D:";
         /**
         * 整理后的文件目录
         */
@@ -75,15 +76,15 @@ namespace testClouder28
          */
         public static string orgin_dir = driver + "\\" + date2Handle.Substring(4);
 
-        public static string driver = "D:";
+        
         private static string dataDirRoot = @"\test-data\";
 
         private static void initFolders() {
             uv2f = new StreamWriter(new FileStream(driver + dataDirRoot + date2Handle.Substring(4) + "\\uv.log", FileMode.Append), Encoding.GetEncoding("gb2312"));
             pv2f = new StreamWriter(new FileStream(driver + dataDirRoot + date2Handle.Substring(4) + "\\pv.log", FileMode.Append), Encoding.GetEncoding("gb2312"));
             hit2f = new StreamWriter(new FileStream(driver + dataDirRoot + date2Handle.Substring(4) + "\\hit.log", FileMode.Append), Encoding.GetEncoding("gb2312"));
-            log = new StreamWriter(new FileStream(driver + dataDirRoot+"exe - " + DateTime.Now.ToString("yyyy-MM-dd-HH") + ".log", FileMode.Append), Encoding.GetEncoding("UTF-8"));
-            log_err = new FileStream(driver + dataDirRoot+ "err -" + DateTime.Now.ToString("yyyy-MM-dd-HH") + ".txt", FileMode.Append);
+            log = new StreamWriter(new FileStream(driver + dataDirRoot+"exe-" + DateTime.Now.ToString("yyyy-MM-dd-HH") + ".log", FileMode.Append), Encoding.GetEncoding("UTF-8"));
+            log_err = new FileStream(driver + dataDirRoot+ "err-" + DateTime.Now.ToString("yyyy-MM-dd-HH") + ".txt", FileMode.Append);
         }
 
 
