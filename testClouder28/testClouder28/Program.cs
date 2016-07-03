@@ -97,8 +97,8 @@ namespace testClouder28
 
 
 
-        private static Hit hitModel = new Hit();
-        private static UV uvModel = new UV();
+        public static Hit hitModel = new Hit();
+        public static UV uvModel = new UV();
         public static PV pvModel = new PV();
 
         public static ConcurrentQueue<string> pvDwFileQueue = pvModel.GetDwFileQueue();
@@ -368,8 +368,8 @@ namespace testClouder28
                     {
                         break;
                     } else {//如果没有文件要处理，休30秒
-                       Console.WriteLine("解析线程{0}，等待新文件,休眠{1}秒钟", Thread.CurrentThread.ManagedThreadId,30);
-                       Thread.Sleep(1000*30);
+                       Console.WriteLine("解析线程{0}，等待新文件,休眠{1}秒钟", Thread.CurrentThread.ManagedThreadId,20);
+                       Thread.Sleep(1000*20);
                     }
                 }
 
