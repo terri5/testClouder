@@ -122,18 +122,6 @@ namespace testClouder28
         static void Main(string[] args)
         {
 
-            //          StreamReader reader = new StreamReader(@"g:\hit.log");
-            //         CommonUtil.handleHitLog("F0DEB9031AFC", reader, ""); ;
-
-            //            listBlob();
-
-
-
-            // WorkerHelper.GetStoreContent()
-
-            //   ISet<string> t = new HashSet<String>();
-
-            //     listBlob();
             try
             {
                 initFolders();//初始化相关目录
