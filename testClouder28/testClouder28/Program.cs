@@ -83,8 +83,8 @@ namespace testClouder28
             uv2f = new StreamWriter(new FileStream(driver + dataDirRoot + date2Handle.Substring(4) + "\\uv.log", FileMode.Append), Encoding.GetEncoding("gb2312"));
             pv2f = new StreamWriter(new FileStream(driver + dataDirRoot + date2Handle.Substring(4) + "\\pv.log", FileMode.Append), Encoding.GetEncoding("gb2312"));
             hit2f = new StreamWriter(new FileStream(driver + dataDirRoot + date2Handle.Substring(4) + "\\hit.log", FileMode.Append), Encoding.GetEncoding("gb2312"));
-            log = new StreamWriter(new FileStream(driver + dataDirRoot+"exe-" + DateTime.Now.ToString("yyyy-MM-dd-HH") + ".log", FileMode.Append), Encoding.GetEncoding("UTF-8"));
-            log_err = new FileStream(driver + dataDirRoot+ "err-" + DateTime.Now.ToString("yyyy-MM-dd-HH") + ".log", FileMode.Append);
+            log = new StreamWriter(new FileStream(driver + dataDirRoot+"exe-" + DateTime.Now.ToString("yyyy-MM-dd-HH") + ".txt", FileMode.Append), Encoding.GetEncoding("UTF-8"));
+            log_err = new FileStream(driver + dataDirRoot+ "err-" + DateTime.Now.ToString("yyyy-MM-dd-HH") + ".txt", FileMode.Append);
         }
 
 
@@ -122,18 +122,6 @@ namespace testClouder28
         static void Main(string[] args)
         {
 
-            //          StreamReader reader = new StreamReader(@"g:\hit.log");
-            //         CommonUtil.handleHitLog("F0DEB9031AFC", reader, ""); ;
-
-            //            listBlob();
-
-
-
-            // WorkerHelper.GetStoreContent()
-
-            //   ISet<string> t = new HashSet<String>();
-
-            //     listBlob();
             try
             {
                 initFolders();//初始化相关目录
