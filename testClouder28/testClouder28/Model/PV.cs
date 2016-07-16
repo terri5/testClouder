@@ -236,8 +236,12 @@ namespace AlalyzeLog.Worker.Model
                                       .Append(StringUtil.GetTrimLengthString(doc.GetValue(HTTP_URI).AsString, 8000)).Append("\t")
                                       .Append(doc.GetValue(HTTP_VERSION, "")).Append("\t")
                                       .Append(doc.GetValue(REFERER, "")).Append("\t")
-                                      .Append(CLIENT_OS).Append("\t").Append(MOBILE_BRAND).Append("\t").Append(CLIENT_BROWSER).Append("\t")
-                                      .Append(doc.GetValue(DAY_ID, "")).AppendLine();
+                                      .Append(doc.GetValue(CLIENT_OS,"")).Append("\t")
+                                      .Append(doc.GetValue(MOBILE_BRAND,"")).Append("\t")
+                                      .Append(doc.GetValue(CLIENT_BROWSER,"")).Append("\t")
+                                      .Append(doc.GetValue(DAY_ID, "")).Append("\t")
+                                      .Append(doc.GetValue(IN_DB_DATETIME,"")).Append("\t")
+                                      .Append(DateTime.Now.ToString("yyyyMMddHHmmss")).AppendLine();
 
          
         }

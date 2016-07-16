@@ -149,7 +149,9 @@ namespace AlalyzeLog.Worker.Model
                .Append(data.GetValue("IP", "")).Append("\t").Append(starttime == null ? "" : starttime?.ToString("yyyy-MM-dd HH:mm:ss")).Append("\t")
                .Append(endtime == null ? "" : endtime?.ToString("yyyy-MM-dd HH:mm:ss")).Append("\t").Append(data.GetValue("wifiup", "")).Append("\t")
                .Append(data.GetValue("wifidown", "")).Append("\t").Append(data.GetValue("3Gup", "")).Append("\t")
-               .Append(data.GetValue("3Gdown")).Append("\t").Append(day_id).AppendLine();
+               .Append(data.GetValue("3Gdown")).Append("\t").Append(day_id).Append("\t")
+               .Append(data.GetValue(INDB_DATETIME, "")).Append("\t")
+               .Append(DateTime.Now.ToString("yyyyMMddHHmmss")).AppendLine();
         }
         public bool shouldInToDB(int count)
         {

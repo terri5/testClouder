@@ -54,9 +54,9 @@ namespace testClouder28
       
         public static System.Collections.Generic.HashSet<string> file2Handle = new System.Collections.Generic.HashSet<string>();
 
-        public static string date2Handle = "20160702";
+        public static string date2Handle = "20160716";
  
-        public const int AnlyzeThreadCnt = 48;//总解析线程数
+        public const int AnlyzeThreadCnt = 1;//总解析线程数
         public const int Write2HbaseThreadCnt = 8;//总写hbase线程数
 
         private static StreamWriter uv2f = null;
@@ -135,10 +135,10 @@ namespace testClouder28
                Thread monitor = new Thread(PipelineStages.MonitorThread);//首先启动监控线程
                monitor.Start(logfiles);
 
- //               file2Handle.Add(LogFileInfo.HIT_FILE);  //hit 
+               file2Handle.Add(LogFileInfo.HIT_FILE);  //hit 
  //               file2Handle.Add(LogFileInfo.UV_FILE);  //uv ok!
-                file2Handle.Add(LogFileInfo.PV1_FILE);
-                file2Handle.Add(LogFileInfo.PV2_FILE);   //pv
+ //               file2Handle.Add(LogFileInfo.PV1_FILE);
+ //               file2Handle.Add(LogFileInfo.PV2_FILE);   //pv
 
                 string fileStrs = "";
                 foreach (string f in file2Handle) fileStrs += ":" + f;
@@ -147,9 +147,9 @@ namespace testClouder28
 
                 Console.WriteLine("处理文件{0}",fileStrs.Substring(1));
 
-          //      move2NormalParallel();
-         //       Console.WriteLine("解压日期：{0}完成", date2Handle);
-         //      Console.ReadKey();
+        //       move2NormalParallel();
+      //          Console.WriteLine("解压日期：{0}完成", date2Handle);
+       //         Console.ReadKey();
          //       return;
 
 
@@ -165,23 +165,33 @@ namespace testClouder28
 
                 }
 
-                     //  StartOutPutTask();
-                
-      
-                        OutObj tPvObj = new OutObj();
-                        tPvObj.Queue = pvDwFileQueue;
-                        tPvObj.OutStream = pv2f;
-                        tPvObj.Batch = 100000;
-                
-                        Thread thPv = new Thread(PipelineStages.Write2DwFileThread);
-                        thPv.Start(tPvObj);
+                //  StartOutPutTask();
 
-                /**
-                                Thread thUv = new Thread(PipelineStages.WriteToThread);
-                                thUv.Start(tUvObj);
-                                Thread thHit = new Thread(PipelineStages.WriteToThread);
-                                thHit.Start(tHitObj);
-                  **/
+                
+                OutObj tPvObj = new OutObj();
+                tPvObj.Queue = pvDwFileQueue;
+                tPvObj.OutStream = pv2f;
+                tPvObj.Batch = 100000;
+
+                Thread thPv = new Thread(PipelineStages.Write2DwFileThread);
+                thPv.Start(tPvObj);
+
+                OutObj tUvObj = new OutObj();
+                tPvObj.Queue = uvDwFileQueue;
+                tPvObj.OutStream = uv2f;
+                tPvObj.Batch = 100000;
+
+                Thread thUv = new Thread(PipelineStages.Write2DwFileThread);
+                 thUv.Start(tUvObj);
+                                
+
+                OutObj tHitObj = new OutObj();
+                tHitObj.Queue = hitDwFileQueue;
+                tHitObj.OutStream = pv2f;
+                tHitObj.Batch = 100000;
+
+                Thread thHit = new Thread(PipelineStages.Write2DwFileThread);
+                thHit.Start(tHitObj);
 
 
                 /*
@@ -193,10 +203,10 @@ namespace testClouder28
                 **/
 
                 //第一种方法
-                
-               // var dirs = Directory.GetDirectories(correct_dir);
-               // LoadDirParallel(dirs);
-                
+
+                // var dirs = Directory.GetDirectories(correct_dir);
+                // LoadDirParallel(dirs);
+
                 move2NormalParallelAndEnqueue();
                 addCompleted = true;
 
@@ -207,7 +217,9 @@ namespace testClouder28
 
                 anlyzeCompleted = true;
 
-                 thPv.Join();
+                thPv.Join();
+                thUv.Join();
+                thHit.Join();
 
 
 
@@ -218,7 +230,7 @@ namespace testClouder28
                 */
 
 
-             //   WaitOutput();
+                //   WaitOutput();
                 allCompleted = true;
  
                 Console.WriteLine("处理文档数量{0},pv:{1},uv:{2},hit:{3}", handleFileCnt, handlePvFileCnt, handleUvFileCnt, handleHitFileCnt);
