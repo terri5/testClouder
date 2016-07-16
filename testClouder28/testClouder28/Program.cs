@@ -177,9 +177,9 @@ namespace testClouder28
                 thPv.Start(tPvObj);
 
                 OutObj tUvObj = new OutObj();
-                tPvObj.Queue = uvDwFileQueue;
-                tPvObj.OutStream = uv2f;
-                tPvObj.Batch = 100000;
+                tUvObj.Queue = uvDwFileQueue;
+                tUvObj.OutStream = uv2f;
+                tUvObj.Batch = 100000;
 
                 Thread thUv = new Thread(PipelineStages.Write2DwFileThread);
                  thUv.Start(tUvObj);
