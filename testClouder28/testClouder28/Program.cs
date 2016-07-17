@@ -187,7 +187,7 @@ namespace testClouder28
 
                 OutObj tHitObj = new OutObj();
                 tHitObj.Queue = hitDwFileQueue;
-                tHitObj.OutStream = pv2f;
+                tHitObj.OutStream = hit2f;
                 tHitObj.Batch = 100000;
 
                 Thread thHit = new Thread(PipelineStages.Write2DwFileThread);
