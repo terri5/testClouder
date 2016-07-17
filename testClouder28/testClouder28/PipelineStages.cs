@@ -72,7 +72,18 @@ namespace testClouder28
                 }
 
             }
-           
+
+            if (sb.Length > 0)
+            {//处理尾巴
+                var watch = new Stopwatch();
+                watch.Start();
+                outer.OutStream.Write(sb.ToString());
+                watch.Stop();
+                Console.WriteLine("当前时间：{0} 写入文件耗时{1}s", DateTime.Now, watch.ElapsedMilliseconds / 1000);
+                sb.Clear();
+
+            }
+
         }
 
         public static  Task Write2DwFileTask(Object obj)
