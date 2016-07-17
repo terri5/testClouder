@@ -51,12 +51,12 @@ namespace testClouder28
 
 
 
-      
+
         public static System.Collections.Generic.HashSet<string> file2Handle = new System.Collections.Generic.HashSet<string>();
 
         public static string date2Handle = "20160716";
- 
-        public const int AnlyzeThreadCnt = 1;//总解析线程数
+
+        public const int AnlyzeThreadCnt = 48;//总解析线程数
         public const int Write2HbaseThreadCnt = 8;//总写hbase线程数
 
         private static StreamWriter uv2f = null;
@@ -76,15 +76,16 @@ namespace testClouder28
          */
         public static string orgin_dir = driver + "\\" + date2Handle.Substring(4);
 
-        
+
         private static string dataDirRoot = @"\test-data\";
 
-        private static void initFolders() {
+        private static void initFolders()
+        {
             uv2f = new StreamWriter(new FileStream(driver + dataDirRoot + date2Handle.Substring(4) + "\\uv.log", FileMode.Append), Encoding.GetEncoding("gb2312"));
             pv2f = new StreamWriter(new FileStream(driver + dataDirRoot + date2Handle.Substring(4) + "\\pv.log", FileMode.Append), Encoding.GetEncoding("gb2312"));
             hit2f = new StreamWriter(new FileStream(driver + dataDirRoot + date2Handle.Substring(4) + "\\hit.log", FileMode.Append), Encoding.GetEncoding("gb2312"));
-            log = new StreamWriter(new FileStream(driver + dataDirRoot+"exe-" + DateTime.Now.ToString("yyyy-MM-dd-HH") + ".txt", FileMode.Append), Encoding.GetEncoding("UTF-8"));
-            log_err = new FileStream(driver + dataDirRoot+ "err-" + DateTime.Now.ToString("yyyy-MM-dd-HH") + ".txt", FileMode.Append);
+            log = new StreamWriter(new FileStream(driver + dataDirRoot + "exe-" + DateTime.Now.ToString("yyyy-MM-dd-HH") + ".txt", FileMode.Append), Encoding.GetEncoding("UTF-8"));
+            log_err = new FileStream(driver + dataDirRoot + "err-" + DateTime.Now.ToString("yyyy-MM-dd-HH") + ".txt", FileMode.Append);
         }
 
 
@@ -102,8 +103,8 @@ namespace testClouder28
 
         public static ConcurrentQueue<BsonDocument> pvHbaseQueue = new ConcurrentQueue<BsonDocument>();
 
-      
-        public static string validTarStr= date2Handle.Substring(2, 2)+"-"+date2Handle.Substring(4, 2) + "-" + date2Handle.Substring(6, 2);
+
+        public static string validTarStr = date2Handle.Substring(2, 2) + "-" + date2Handle.Substring(4, 2) + "-" + date2Handle.Substring(6, 2);
         public static int handleHitFileCnt = 0;
         public static int handlePvFileCnt = 0;
         public static int handleUvFileCnt = 0;
@@ -128,29 +129,29 @@ namespace testClouder28
                 Stopwatch watch = new Stopwatch();
                 watch.Start();//首先启动监控线程
 
-                log.WriteLine(date2Handle+"开始时间{0},处理日期{1}", DateTime.Now,date2Handle);
+                log.WriteLine(date2Handle + "开始时间{0},处理日期{1}", DateTime.Now, date2Handle);
 
-               Console.WriteLine(date2Handle + "开始时间{0},处理日期{1}", DateTime.Now, date2Handle);
+                Console.WriteLine(date2Handle + "开始时间{0},处理日期{1}", DateTime.Now, date2Handle);
 
-               Thread monitor = new Thread(PipelineStages.MonitorThread);//首先启动监控线程
-               monitor.Start(logfiles);
+                Thread monitor = new Thread(PipelineStages.MonitorThread);//首先启动监控线程
+                monitor.Start(logfiles);
 
-               file2Handle.Add(LogFileInfo.HIT_FILE);  //hit 
- //               file2Handle.Add(LogFileInfo.UV_FILE);  //uv ok!
- //               file2Handle.Add(LogFileInfo.PV1_FILE);
- //               file2Handle.Add(LogFileInfo.PV2_FILE);   //pv
+                file2Handle.Add(LogFileInfo.HIT_FILE);  //hit 
+                file2Handle.Add(LogFileInfo.UV_FILE);  //uv ok!
+                file2Handle.Add(LogFileInfo.PV1_FILE);
+                file2Handle.Add(LogFileInfo.PV2_FILE);   //pv
 
                 string fileStrs = "";
                 foreach (string f in file2Handle) fileStrs += ":" + f;
 
-                log.WriteLine("处理文件{0}",fileStrs.Substring(1));
+                log.WriteLine("处理文件{0}", fileStrs.Substring(1));
 
-                Console.WriteLine("处理文件{0}",fileStrs.Substring(1));
+                Console.WriteLine("处理文件{0}", fileStrs.Substring(1));
 
-        //       move2NormalParallel();
-      //          Console.WriteLine("解压日期：{0}完成", date2Handle);
-       //         Console.ReadKey();
-         //       return;
+                //       move2NormalParallel();
+                //          Console.WriteLine("解压日期：{0}完成", date2Handle);
+                //         Console.ReadKey();
+                //       return;
 
 
                 List<Thread> analyzedThreads = new List<Thread>();
@@ -167,11 +168,11 @@ namespace testClouder28
 
                 //  StartOutPutTask();
 
-                
+
                 OutObj tPvObj = new OutObj();
                 tPvObj.Queue = pvDwFileQueue;
                 tPvObj.OutStream = pv2f;
-                tPvObj.Batch = 100000;
+                tPvObj.Batch = 200000;
 
                 Thread thPv = new Thread(PipelineStages.Write2DwFileThread);
                 thPv.Start(tPvObj);
@@ -179,16 +180,16 @@ namespace testClouder28
                 OutObj tUvObj = new OutObj();
                 tUvObj.Queue = uvDwFileQueue;
                 tUvObj.OutStream = uv2f;
-                tUvObj.Batch = 100000;
+                tUvObj.Batch = 300000;
 
                 Thread thUv = new Thread(PipelineStages.Write2DwFileThread);
-                 thUv.Start(tUvObj);
-                                
+                thUv.Start(tUvObj);
+
 
                 OutObj tHitObj = new OutObj();
                 tHitObj.Queue = hitDwFileQueue;
                 tHitObj.OutStream = hit2f;
-                tHitObj.Batch = 100000;
+                tHitObj.Batch = 300000;
 
                 Thread thHit = new Thread(PipelineStages.Write2DwFileThread);
                 thHit.Start(tHitObj);
@@ -232,20 +233,20 @@ namespace testClouder28
 
                 //   WaitOutput();
                 allCompleted = true;
- 
+
                 Console.WriteLine("处理文档数量{0},pv:{1},uv:{2},hit:{3}", handleFileCnt, handlePvFileCnt, handleUvFileCnt, handleHitFileCnt);
-                Console.WriteLine("处理有效记录数量 pv:{0},uv:{1},hit:{2}", pvModel.GetCnt(), uvModel.GetCnt(),hitModel.GetCnt());
-      
+                Console.WriteLine("处理有效记录数量 pv:{0},uv:{1},hit:{2}", pvModel.GetCnt(), uvModel.GetCnt(), hitModel.GetCnt());
+
                 watch.Stop();
                 TimeSpan timeSpan = watch.Elapsed;
                 Console.WriteLine("Time expend {0} seconds", watch.ElapsedMilliseconds / 1000);
                 Console.WriteLine("耗费{0}天{1}小时{2}分钟{3}秒", timeSpan.Days, timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
                 log.WriteLine("处理文档数量{0},pv:{1},uv:{2},hit:{3}", handleFileCnt, handlePvFileCnt, handleUvFileCnt, handleHitFileCnt);
                 log.WriteLine("处理有效记录数量 pv:{0},uv:{1},hit:{2}", pvModel.GetCnt(), uvModel.GetCnt(), hitModel.GetCnt());
-                log.WriteLine("耗费{0}天{1}小时{2}分钟{3}秒", timeSpan.Days, timeSpan.Hours,timeSpan.Minutes,timeSpan.Seconds);
+                log.WriteLine("耗费{0}天{1}小时{2}分钟{3}秒", timeSpan.Days, timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
                 Console.ReadKey();
 
-                
+
             }
             finally
             {
@@ -260,7 +261,7 @@ namespace testClouder28
                 uv2f.Close();
                 pv2f.Flush();
                 pv2f.Close();
- 
+
                 hit2f.Flush();
                 hit2f.Close();
 
@@ -296,12 +297,14 @@ namespace testClouder28
 
 
         }
-        public static void WaitOutput() {
+        public static void WaitOutput()
+        {
             taskPv.Wait();
             //taskUv.Wait(); taskHit.Wait();
         }
-    
-        public static void LoadDirParallel(string[] dirs) {
+
+        public static void LoadDirParallel(string[] dirs)
+        {
 
             Parallel.ForEach(dirs, (fdir) =>
             {
@@ -310,82 +313,89 @@ namespace testClouder28
             });
         }
 
-       
 
-        public  void LogAnly(Object obj)
+
+        public void LogAnly(Object obj)
         {
-      
-                var input = obj as ThreadInfo;
-               IHBaseModel model = null;
-                while (true)
+
+            var input = obj as ThreadInfo;
+            IHBaseModel model = null;
+            while (true)
+            {
+
+                if (input.FileQueue.Count > 0)
                 {
+                    LogFileInfo t = null;
+                    Boolean geted = false;
 
-                    if (input.FileQueue.Count > 0)
+                    geted = input.FileQueue.TryDequeue(out t);
+                    if (geted)
                     {
-                        LogFileInfo t = null;
-                        Boolean geted = false;
+                        lock (syncFileCount)
+                        {
+                            handleFileCnt++;
+                        }
+                        switch (t.GetLogType())
+                        {
+                            case LogFileInfo.FILE_TYPE_PV:
+                                model = pvModel;
+                                lock (syncPvF)
+                                {
+                                    handlePvFileCnt++;
+                                }
+                                break;
+                            case LogFileInfo.FILE_TYPE_UV:
+                                model = uvModel;
+                                lock (syncUvF)
+                                {
+                                    handleUvFileCnt++;
+                                }
+                                break;
+                            case LogFileInfo.FILE_TYPE_HIT:
+                                model = hitModel;
+                                lock (syncHitF)
+                                {
+                                    handleHitFileCnt++;
+                                }
+                                break;
+                        }
 
-                        geted = input.FileQueue.TryDequeue(out t);
-                        if (geted)
-                       {
-                            lock (syncFileCount)
-                            {
-                                handleFileCnt++;
-                            }
-                            switch (t.GetLogType()) {
-                                case LogFileInfo.FILE_TYPE_PV:
-                                    model = pvModel;
-                                    lock (syncPvF)
-                                    {
-                                        handlePvFileCnt++;
-                                    }
-                                    break;
-                                case LogFileInfo.FILE_TYPE_UV:
-                                    model = uvModel;
-                                    lock (syncUvF)
-                                    {
-                                        handleUvFileCnt++;
-                                    }
-                                    break;
-                                case LogFileInfo.FILE_TYPE_HIT:
-                                    model = hitModel;
-                                    lock (syncHitF)
-                                    {
-                                        handleHitFileCnt++;
-                                    }
-                                    break;
-                            }
+                        if (model != null) handleLog(t, model);
 
-                         if(model != null) handleLog(t, model);
-
-                          }
-                    } else if (Program.addCompleted == true)
-                    {
-                        break;
-                    } else {//如果没有文件要处理，休30秒
-                       Console.WriteLine("解析线程{0}，等待新文件,休眠{1}秒钟", Thread.CurrentThread.ManagedThreadId,20);
-                       Thread.Sleep(1000*20);
                     }
                 }
+                else if (Program.addCompleted == true)
+                {
+                    break;
+                }
+                else
+                {//如果没有文件要处理，休30秒
+                    Console.WriteLine("解析线程{0}，等待新文件,休眠{1}秒钟", Thread.CurrentThread.ManagedThreadId, 20);
+                    Thread.Sleep(1000 * 20);
+                }
+            }
 
         }
-        public static Boolean IsValidTar(string tarName) {
-            if (tarName.Contains(validTarStr) || tarName.Contains(date2Handle)) {
+        public static Boolean IsValidTar(string tarName)
+        {
+            if (tarName.Contains(validTarStr) || tarName.Contains(date2Handle))
+            {
                 return true;
             }
             return false;
 
 
         }
-     
-        
 
-        public static void  handleLog(LogFileInfo f,IHBaseModel model){
+
+
+        public static void handleLog(LogFileInfo f, IHBaseModel model)
+        {
             StreamReader reader = null;
             try
             {
                 reader = new StreamReader(f.Fullname);
-         //     await  handleLog2Hbase(f.Dmac, reader,"","", model);
+                //     await  handleLog2Hbase(f.Dmac, reader,"","", model);
                 handleLog2DwFile(f.Dmac, reader, "", "", model);
             }
             catch (Exception e)
@@ -411,7 +421,7 @@ namespace testClouder28
             int bu_count = 0;
             int bu_count_repeat = 0;
 
-  
+
             while ((line = reader.ReadLine()) != null)
             {
                 filelines++;
@@ -421,23 +431,23 @@ namespace testClouder28
                 {
                     if (data != null)
                     {
-                        bu_count_repeat++;                 
+                        bu_count_repeat++;
                         if (ids.Add(data.GetValue(ConvertUtil.Unique_Key).ToString()))
                         {
-                              data.Remove(ConvertUtil.Unique_Key);
-                              pvHbaseQueue.Enqueue(data);
+                            data.Remove(ConvertUtil.Unique_Key);
+                            pvHbaseQueue.Enqueue(data);
                         }
-                     
+
                     }
 
                     if (model.shouldInToDB(list.Count))
                     {
                         List<BsonDocument> toHbase = list;
                         list = new List<BsonDocument>();
-                        Console.WriteLine("写入hbase:" + toHbase.Count);   
-                       await HBaseBLL.BatchInsertJsonAsync(toHbase, model);
+                        Console.WriteLine("写入hbase:" + toHbase.Count);
+                        await HBaseBLL.BatchInsertJsonAsync(toHbase, model);
                     }
-           
+
 
                 }
                 catch (Exception e)
@@ -451,18 +461,18 @@ namespace testClouder28
             }
             if (pvHbaseQueue.Count > 20 * pvModel.BATHCH) //解析停止3秒钟
             {
-                Console.WriteLine("解析线程{0} 休眠{1}秒钟",Thread.CurrentThread.ManagedThreadId,3);
+                Console.WriteLine("解析线程{0} 休眠{1}秒钟", Thread.CurrentThread.ManagedThreadId, 3);
                 Thread.Sleep(1000 * 3);
             }
 
 
             if (list.Count > 0)
             {
-                
+
                 try
                 {
                     Console.WriteLine("写入hbase:" + list.Count);
-                   await HBaseBLL.BatchInsertJsonAsync(list, model);
+                    await HBaseBLL.BatchInsertJsonAsync(list, model);
                 }
                 catch (Exception e)
                 {
@@ -487,7 +497,7 @@ namespace testClouder28
             ConcurrentQueue<string> queue = null;
 
             queue = model.GetDwFileQueue();
-      
+
             try
             {
                 while ((line = reader.ReadLine()) != null)
@@ -497,7 +507,7 @@ namespace testClouder28
                     {
 
                         string id = doc.GetValue("_id").AsString;
-                        model.AddRCnt1();                      
+                        model.AddRCnt1();
                         if (ids.Add(id))
                         {
                             try
@@ -509,10 +519,10 @@ namespace testClouder28
                             }
                             catch (Exception e)
                             {
-      //                          Console.WriteLine(e.Message);
-      //                          Console.WriteLine(e.StackTrace);
-      //                          Console.WriteLine(line);
-      //                          Console.WriteLine(doc);
+                                //                          Console.WriteLine(e.Message);
+                                //                          Console.WriteLine(e.StackTrace);
+                                //                          Console.WriteLine(line);
+                                //                          Console.WriteLine(doc);
                                 WriteLog(e);
 
                             }
@@ -524,7 +534,7 @@ namespace testClouder28
                 }
                 ids.Clear();
 
-                while (queue.Count > 2 * 100000)
+                while (queue.Count > 4 * 100000)
                 {
                     Console.WriteLine("解析线程{0} 休眠{1}秒钟", Thread.CurrentThread.ManagedThreadId, 2);
                     Thread.Sleep(1000 * 2);
@@ -540,8 +550,9 @@ namespace testClouder28
 
         }
 
-       
-        public  static void EnqueueByDirAndFiles(string dirName,string[] flogs) {
+
+        public static void EnqueueByDirAndFiles(string dirName, string[] flogs)
+        {
             string dmac;
             if (dirName.ToUpper().StartsWith("GD")) //获取dmac
             { //高达
@@ -617,12 +628,13 @@ namespace testClouder28
                         {//判断是否存在
                             Directory.CreateDirectory(path);//创建新路径
                         }
-                        else {
+                        else
+                        {
                             var flogs = Directory.GetFiles(path);
-                            EnqueueByDirAndFiles(fdir,flogs);
+                            EnqueueByDirAndFiles(fdir, flogs);
                             return; //如果已经存在，则认为已解压
                         }
-                            
+
                     }
                     catch (Exception e)
                     {
@@ -642,7 +654,7 @@ namespace testClouder28
 
                         List<Stream> outers = new List<Stream>();
                         TarEntry entry = tarStream.GetNextEntry();
-                     
+
                         while (entry != null)
                         {
                             Stream streamOut = null;
@@ -711,32 +723,32 @@ namespace testClouder28
 
                 Parallel.ForEach(files, (file) =>
                 {
-                if (!IsValidTar(file)) return;
+                    if (!IsValidTar(file)) return;
 
-                string outDir = "";
-                string fname = file.Substring(file.LastIndexOf("\\") + 1);
-                string fdir = fname.Substring(0, fname.Length - 7);
+                    string outDir = "";
+                    string fname = file.Substring(file.LastIndexOf("\\") + 1);
+                    string fdir = fname.Substring(0, fname.Length - 7);
 
-                if(fdir.StartsWith("-")) fdir = "_" + dir.Substring(dir.LastIndexOf("\\") + 1).ToUpper() + fdir;
-                if(fdir.StartsWith("sys")) fdir = fdir.Substring(4);  //sys-58-69-6C-03-C7-D6-16-06-14-10-00-32.tar.gz
+                    if (fdir.StartsWith("-")) fdir = "_" + dir.Substring(dir.LastIndexOf("\\") + 1).ToUpper() + fdir;
+                    if (fdir.StartsWith("sys")) fdir = fdir.Substring(4);  //sys-58-69-6C-03-C7-D6-16-06-14-10-00-32.tar.gz
 
-                 outDir = cor_path + "\\" + fdir;
+                    outDir = cor_path + "\\" + fdir;
 
-                try
-                {
-                    string path = outDir;
+                    try
+                    {
+                        string path = outDir;
                         if (!Directory.Exists(path))
                         {//判断是否存在
                             Directory.CreateDirectory(path);//创建新路径
                         }
                         else return; //如果已经存在，则认为已解压
-                }
-                catch (Exception e)
-                {
-                    Console.Error.WriteLine("path=" + outDir);
-                    Console.Error.WriteLine(e.Message + "\n" + e.StackTrace);
-                    WriteLog(e);
-                }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.Error.WriteLine("path=" + outDir);
+                        Console.Error.WriteLine(e.Message + "\n" + e.StackTrace);
+                        WriteLog(e);
+                    }
                     FileStream fs = null;
                     GZipInputStream gzStream = null;
                     TarInputStream tarStream = null;
@@ -779,33 +791,37 @@ namespace testClouder28
                     {
                         Console.Error.WriteLine(e.Message + "\n" + e.StackTrace);
                     }
-                    finally {
+                    finally
+                    {
                         if (fs != null) fs.Close();
                         if (gzStream != null) gzStream.Close();
                     }
-               
+
                 });
             }
 
 
         }
 
-      
 
-        public static void WriteLog(Exception e) {
-            lock (log_err) {
+
+        public static void WriteLog(Exception e)
+        {
+            lock (log_err)
+            {
                 //获得字节数组
-                byte[] data = System.Text.Encoding.Default.GetBytes(e.Message + "\n"+e.StackTrace);
+                byte[] data = System.Text.Encoding.Default.GetBytes(e.Message + "\n" + e.StackTrace);
                 //开始写入
                 log_err.Write(data, 0, data.Length);
                 //清空缓冲区、关闭流
                 log_err.Flush();
-            }  
+            }
         }
 
 
 
-        public void listFile() {
+        public void listFile()
+        {
 
             String path = @"G:\temp";
 
@@ -833,7 +849,8 @@ namespace testClouder28
             }
 
         }
-        public static void listBlob() {
+        public static void listBlob()
+        {
 
             // Retrieve storage account from connection string.
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
@@ -850,14 +867,14 @@ namespace testClouder28
                 if (item.GetType() == typeof(CloudBlockBlob))
                 {
                     CloudBlockBlob blob = (CloudBlockBlob)item;
-             //       downloadSpecifyBlob(blob, @"d:\blob\"+blob.Name.Substring(blob.Name.IndexOf("/")+1));
-                   
-              //      byte[] bytes = new byte[blob.Properties.Length];
-              //      blob.DownloadToByteArrayAsync(bytes, 0).Wait();
-              //      GZipHelper.GZipFile("123", bytes, blob.Name); 
-    
+                    //       downloadSpecifyBlob(blob, @"d:\blob\"+blob.Name.Substring(blob.Name.IndexOf("/")+1));
+
+                    //      byte[] bytes = new byte[blob.Properties.Length];
+                    //      blob.DownloadToByteArrayAsync(bytes, 0).Wait();
+                    //      GZipHelper.GZipFile("123", bytes, blob.Name); 
+
                     Console.WriteLine("Block blob of length {0}: {1}", blob.Properties.Length, blob.Uri);
- 
+
 
                 }
                 else if (item.GetType() == typeof(CloudPageBlob))
@@ -865,7 +882,7 @@ namespace testClouder28
                     CloudPageBlob pageBlob = (CloudPageBlob)item;
 
                     Console.WriteLine("Page blob of length {0}: {1}", pageBlob.Properties.Length, pageBlob.Uri);
-     
+
 
                 }
                 else if (item.GetType() == typeof(CloudBlobDirectory))
@@ -876,9 +893,9 @@ namespace testClouder28
                 }
             }
         }
-   
 
-        public static void downloadSpecifyBlob(CloudBlockBlob blockBlob,string path)
+
+        public static void downloadSpecifyBlob(CloudBlockBlob blockBlob, string path)
         {
             using (var fileStream = System.IO.File.Open(path, FileMode.OpenOrCreate))
             {
@@ -887,7 +904,8 @@ namespace testClouder28
 
         }
 
-        public static void downloadBlob() {
+        public static void downloadBlob()
+        {
 
             // Retrieve storage account from connection string.
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(storageConnectionString);
