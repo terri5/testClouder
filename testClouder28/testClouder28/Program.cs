@@ -54,7 +54,7 @@ namespace testClouder28
 
         public static System.Collections.Generic.HashSet<string> file2Handle = new System.Collections.Generic.HashSet<string>();
 
-        public static string date2Handle = "20160716";
+        public static string date2Handle = "20160727";
 
         public const int AnlyzeThreadCnt = 48;//总解析线程数
         public const int Write2HbaseThreadCnt = 8;//总写hbase线程数
@@ -135,9 +135,10 @@ namespace testClouder28
 
                 Thread monitor = new Thread(PipelineStages.MonitorThread);//首先启动监控线程
                 monitor.Start(logfiles);
-
+/*
                 file2Handle.Add(LogFileInfo.HIT_FILE);  //hit 
                 file2Handle.Add(LogFileInfo.UV_FILE);  //uv ok!
+  */             
                 file2Handle.Add(LogFileInfo.PV1_FILE);
                 file2Handle.Add(LogFileInfo.PV2_FILE);   //pv
 
@@ -168,7 +169,7 @@ namespace testClouder28
 
                 //  StartOutPutTask();
 
-
+              
                 OutObj tPvObj = new OutObj();
                 tPvObj.Queue = pvDwFileQueue;
                 tPvObj.OutStream = pv2f;
@@ -176,14 +177,14 @@ namespace testClouder28
 
                 Thread thPv = new Thread(PipelineStages.Write2DwFileThread);
                 thPv.Start(tPvObj);
+             /*   
+              OutObj tUvObj = new OutObj();
+              tUvObj.Queue = uvDwFileQueue;
+              tUvObj.OutStream = uv2f;
+              tUvObj.Batch = 300000;
 
-                OutObj tUvObj = new OutObj();
-                tUvObj.Queue = uvDwFileQueue;
-                tUvObj.OutStream = uv2f;
-                tUvObj.Batch = 300000;
-
-                Thread thUv = new Thread(PipelineStages.Write2DwFileThread);
-                thUv.Start(tUvObj);
+              Thread thUv = new Thread(PipelineStages.Write2DwFileThread);
+              thUv.Start(tUvObj);
 
 
                 OutObj tHitObj = new OutObj();
@@ -193,7 +194,7 @@ namespace testClouder28
 
                 Thread thHit = new Thread(PipelineStages.Write2DwFileThread);
                 thHit.Start(tHitObj);
-
+                */
 
                 /*
                 List<Task> wrtite2HbaseTasks = new List<Task>();
@@ -217,10 +218,11 @@ namespace testClouder28
                 }
 
                 anlyzeCompleted = true;
-
+               
                 thPv.Join();
-                thUv.Join();
-                thHit.Join();
+              //  thUv.Join();
+                 
+              //  thHit.Join();
 
 
 
@@ -300,7 +302,8 @@ namespace testClouder28
         public static void WaitOutput()
         {
             taskPv.Wait();
-            //taskUv.Wait(); taskHit.Wait();
+            taskUv.Wait();
+            taskHit.Wait();
         }
 
         public static void LoadDirParallel(string[] dirs)

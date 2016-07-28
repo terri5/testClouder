@@ -157,7 +157,7 @@ namespace analyzeLogWorkRole.Model
                 if (data == null) return null;
                 dateStr = data.GetValue("time").AsInt64 + "";
                 unixDate = long.Parse(dateStr);
-                start = new DateTime(1970, 1, 1, 0, 0, 0);
+                start = new DateTime(1970, 1, 1, 8, 0, 0);
                 DateTime date = start.AddMilliseconds(unixDate);
                 day_id = int.Parse(date.ToString("yyyyMMdd"));
                 rowkey = ConvertUtil.getHbaseRowKeyUnique(date, dmac);

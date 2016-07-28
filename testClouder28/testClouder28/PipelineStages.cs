@@ -137,6 +137,7 @@ namespace testClouder28
                 Program.log.WriteLine("当前待处理日志文件数量:{0} 当前时间：{1},已用时{2}小时{3}分钟", queue.Count, DateTime.Now.ToString(), (cnt * 5) / 60, (cnt * 5) % 60);
                 Program.log.WriteLine("当前已处理日志文件数量{0},pv:{1},uv:{2} hit:{3}", (Program.handlePvFileCnt + Program.handleUvFileCnt + Program.handleHitFileCnt),Program.handlePvFileCnt,Program.handleUvFileCnt,Program.handleHitFileCnt);
                 Program.log.WriteLine("当前待写入记录数{0},pv:{1},uv:{2} hit:{3}", (Program.pvDwFileQueue.Count + Program.uvDwFileQueue.Count + Program.hitDwFileQueue.Count), Program.pvDwFileQueue.Count, Program.uvDwFileQueue.Count, Program.hitDwFileQueue.Count);
+                Program.log.WriteLine("去重之前的记录数：pv:{0},uv:{1},hit:{2}", Program.pvModel.GetRCnt(), Program.uvModel.GetRCnt(), Program.hitModel.GetRCnt());
                 Program.log.WriteLine("有效记录数：pv:{0},uv:{1},hit:{2}",Program.pvModel.GetCnt(), Program.uvModel.GetCnt(), Program.hitModel.GetCnt());
                 Program.log.Flush();
                 cnt++;
