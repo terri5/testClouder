@@ -54,9 +54,9 @@ namespace testClouder28
 
         public static System.Collections.Generic.HashSet<string> file2Handle = new System.Collections.Generic.HashSet<string>();
 
-        public static string date2Handle = "20160727";
+        public static string date2Handle = "20160803";
 
-        public const int AnlyzeThreadCnt = 48;//总解析线程数
+        public const int AnlyzeThreadCnt = 20;//总解析线程数
         public const int Write2HbaseThreadCnt = 8;//总写hbase线程数
 
         private static StreamWriter uv2f = null;
@@ -135,22 +135,23 @@ namespace testClouder28
 
                 Thread monitor = new Thread(PipelineStages.MonitorThread);//首先启动监控线程
                 monitor.Start(logfiles);
-/*
+
                 file2Handle.Add(LogFileInfo.HIT_FILE);  //hit 
-                file2Handle.Add(LogFileInfo.UV_FILE);  //uv ok!
-  */             
+                 /*
+                 file2Handle.Add(LogFileInfo.UV_FILE);  //uv ok!
+                                       
                 file2Handle.Add(LogFileInfo.PV1_FILE);
                 file2Handle.Add(LogFileInfo.PV2_FILE);   //pv
-
+                   */
                 string fileStrs = "";
                 foreach (string f in file2Handle) fileStrs += ":" + f;
 
                 log.WriteLine("处理文件{0}", fileStrs.Substring(1));
 
                 Console.WriteLine("处理文件{0}", fileStrs.Substring(1));
-
-                //       move2NormalParallel();
-                //          Console.WriteLine("解压日期：{0}完成", date2Handle);
+                //方法1
+               //        move2NormalParallel();
+                //       Console.WriteLine("解压日期：{0}完成", date2Handle);
                 //         Console.ReadKey();
                 //       return;
 
@@ -168,33 +169,33 @@ namespace testClouder28
                 }
 
                 //  StartOutPutTask();
+                /*   
 
-              
-                OutObj tPvObj = new OutObj();
-                tPvObj.Queue = pvDwFileQueue;
-                tPvObj.OutStream = pv2f;
-                tPvObj.Batch = 200000;
+                              OutObj tPvObj = new OutObj();
+                              tPvObj.Queue = pvDwFileQueue;
+                              tPvObj.OutStream = pv2f;
+                              tPvObj.Batch = 200000;
 
-                Thread thPv = new Thread(PipelineStages.Write2DwFileThread);
-                thPv.Start(tPvObj);
-             /*   
-              OutObj tUvObj = new OutObj();
-              tUvObj.Queue = uvDwFileQueue;
-              tUvObj.OutStream = uv2f;
-              tUvObj.Batch = 300000;
+                              Thread thPv = new Thread(PipelineStages.Write2DwFileThread);
+                              thPv.Start(tPvObj);
 
-              Thread thUv = new Thread(PipelineStages.Write2DwFileThread);
-              thUv.Start(tUvObj);
+                            OutObj tUvObj = new OutObj();
+                            tUvObj.Queue = uvDwFileQueue;
+                            tUvObj.OutStream = uv2f;
+                            tUvObj.Batch = 300000;
 
+                            Thread thUv = new Thread(PipelineStages.Write2DwFileThread);
+                            thUv.Start(tUvObj);
 
+                   */
                 OutObj tHitObj = new OutObj();
                 tHitObj.Queue = hitDwFileQueue;
                 tHitObj.OutStream = hit2f;
-                tHitObj.Batch = 300000;
+                tHitObj.Batch = 1000;
 
                 Thread thHit = new Thread(PipelineStages.Write2DwFileThread);
                 thHit.Start(tHitObj);
-                */
+                           
 
                 /*
                 List<Task> wrtite2HbaseTasks = new List<Task>();
@@ -206,10 +207,10 @@ namespace testClouder28
 
                 //第一种方法
 
-                // var dirs = Directory.GetDirectories(correct_dir);
-                // LoadDirParallel(dirs);
-
-                move2NormalParallelAndEnqueue();
+               var dirs = Directory.GetDirectories(correct_dir);
+               LoadDirParallel(dirs);
+              //方法2
+              //  move2NormalParallelAndEnqueue();
                 addCompleted = true;
 
                 foreach (Thread t in analyzedThreads)
@@ -219,10 +220,10 @@ namespace testClouder28
 
                 anlyzeCompleted = true;
                
-                thPv.Join();
+              //  thPv.Join();
               //  thUv.Join();
                  
-              //  thHit.Join();
+                thHit.Join();
 
 
 
@@ -312,7 +313,7 @@ namespace testClouder28
             Parallel.ForEach(dirs, (fdir) =>
             {
                 var flogs = Directory.GetFiles(fdir);
-                EnqueueByDirAndFiles(fdir, flogs);
+                EnqueueByDirAndFiles(fdir.Substring(fdir.LastIndexOf(@"\")+1), flogs);
             });
         }
 
@@ -374,7 +375,7 @@ namespace testClouder28
                 else
                 {//如果没有文件要处理，休30秒
                     Console.WriteLine("解析线程{0}，等待新文件,休眠{1}秒钟", Thread.CurrentThread.ManagedThreadId, 20);
-                    Thread.Sleep(1000 * 20);
+                    Thread.Sleep(1000 * 2);
                 }
             }
 
@@ -505,7 +506,18 @@ namespace testClouder28
             {
                 while ((line = reader.ReadLine()) != null)
                 {
+                  
+                    if (line.Contains(Hit.VERSION))
+                    {
+                     //   Console.WriteLine(line);
+                    }
                     BsonDocument doc = model.LineToBson(line, dmac);
+                    if (line.Contains(Hit.VERSION))
+                    {
+                      //  Console.WriteLine("解析后"+doc.ToString());
+                      //  Console.ReadKey();
+                    }
+                  
                     if (doc != null)
                     {
 
@@ -579,7 +591,7 @@ namespace testClouder28
 
                 t.Dmac = dmac;
                 t.Fullname = f;
-                // Console.WriteLine(t.Fname);
+                Console.WriteLine(t.Dmac);
                 if (String.IsNullOrEmpty(t.Dmac))
                 {
                     Console.Error.WriteLine("dmac异常,dmac={0}", t.Dmac);
@@ -755,6 +767,7 @@ namespace testClouder28
                     FileStream fs = null;
                     GZipInputStream gzStream = null;
                     TarInputStream tarStream = null;
+                    List<string> logs = new List<string>();
                     try
                     {
                         fs = new FileStream(file, FileMode.Open);

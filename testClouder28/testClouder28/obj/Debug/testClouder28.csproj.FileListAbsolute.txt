@@ -291,3 +291,4 @@ C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\Debug\ko\System.Spat
 C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\Debug\ru\System.Spatial.resources.dll
 C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\Debug\zh-Hans\System.Spatial.resources.dll
 C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\Debug\zh-Hant\System.Spatial.resources.dll
+C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\obj\Debug\testClouder28.csprojResolveAssemblyReference.cache

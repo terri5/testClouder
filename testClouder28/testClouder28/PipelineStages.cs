@@ -62,7 +62,7 @@ namespace testClouder28
                         outer.OutStream.Write(sb.ToString());
                         watch.Stop();
                         Console.WriteLine("当前时间：{0} 写入文件耗时{1}s",DateTime.Now,watch.ElapsedMilliseconds / 1000);
-                        sb.Clear();
+                        sb=new StringBuilder();
                     }
 
                 } else if (outer.Queue.Count == 0)

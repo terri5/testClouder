@@ -29,6 +29,7 @@ namespace analyzeLogWorkRole.Model
         public const string PAGETIME = "pageTime";
         public const string DAY_ID = "day_id";
         public const string INDB_DATETIME = "INDB_DATETIME";
+        public const string VERSION = "version";
         private readonly int BATHCH = 1000;
 
         private ConcurrentQueue<string> dwFileQueue = new ConcurrentQueue<string>();
@@ -110,6 +111,7 @@ namespace analyzeLogWorkRole.Model
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + UID.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(UID, "").AsString) });
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + POSIDX.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(POSIDX, "").AsString) });
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + PAGETIME.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(PAGETIME, "").AsString) });
+                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + VERSION.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(VERSION, "").AsString) });
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + DAY_ID.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(DAY_ID).AsInt32 + "") });
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + CLIENT_OS.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(CLIENT_OS,"").AsString) });
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + MOBILE_BRAND.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(MOBILE_BRAND,"").AsString) });
@@ -202,7 +204,8 @@ namespace analyzeLogWorkRole.Model
                                           .Append(DateTime.Now.ToString("yyyyMMddHHmmss")).Append("\t")
                                           .Append(data.GetValue(CLIENT_OS, "")).Append("\t")
                                           .Append(data.GetValue(MOBILE_BRAND, "")).Append("\t")
-                                          .Append(data.GetValue(CLIENT_BROWSER, "")).AppendLine();
+                                          .Append(data.GetValue(CLIENT_BROWSER, "")).Append("\t")
+                                          .Append(data.GetValue(VERSION, "")).AppendLine();
                                           
         }
 
