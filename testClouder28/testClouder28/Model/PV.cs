@@ -145,6 +145,7 @@ namespace AlalyzeLog.Worker.Model
 
         public BsonDocument LineToBson(string line, string dmac)
         {
+            
             string ip = StringUtil.getSingleIpString(line);
             if (string.IsNullOrEmpty(ip))
             { //没有找到符合条件的IP地址
@@ -194,11 +195,11 @@ namespace AlalyzeLog.Worker.Model
                 if (strs.Length > 2)
                 {
                     obj.Add("clientAgent", strs[2]);
-/*
+
                     obj.Add(CLIENT_OS, Regex.IsMatch(strs[2], os_str_regex) ? mobile_os_dict[Regex.Match(strs[2], os_str_regex).Value] : "");
                     obj.Add(MOBILE_BRAND, Regex.IsMatch(strs[2], brand_str_regex) ? mobile_brand_dict[Regex.Match(strs[2], brand_str_regex).Value] : "");
                     obj.Add(CLIENT_BROWSER, Regex.IsMatch(strs[2], browser_str_regex) ? mobile_browser_dict[Regex.Match(strs[2], browser_str_regex).Value] : "");
-                    */
+
                 }
 
                 //存在url的
@@ -208,15 +209,17 @@ namespace AlalyzeLog.Worker.Model
                     obj.Add(HTTP_METHOD, httpMethod);
                     obj.Add(HTTP_VERSION, httpVer);
                     obj.Add(REFERER, url);
-                    obj.Add(ConvertUtil.Unique_Key, dmac + date.ToString("yyyyMMddHHmmss").Substring(0,11) + ip.Replace(".", "") + StringUtil.ConvertBase64(httpUri + url));
+                    obj.Add(ConvertUtil.Unique_Key, dmac + date.ToString("yyyyMMddHHmmss").Substring(0, 11) + ip.Replace(".", "") + StringUtil.ConvertBase64(httpUri + url));
                     obj.Add(IN_DB_DATETIME, long.Parse(hostdate.ToString("yyyyMMddHHmmss")));
                     string rowkey = ConvertUtil.getHbaseRowKeyUnique(date, dmac);
                     obj.Add(ROW_KEY, rowkey);
                     return obj;
-                }
+                }       
                 return null;
             }
-            return null;
+                return null;
+             
+          
         }
 
         public bool shouldInToDB(int count)

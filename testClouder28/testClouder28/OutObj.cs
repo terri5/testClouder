@@ -15,6 +15,7 @@ namespace testClouder28
         private ConcurrentQueue<BsonDocument> hbasequeue;
         private StreamWriter outStream;
         private int batch;
+        private string logType;
 
 
 
@@ -69,6 +70,19 @@ namespace testClouder28
             set
             {
                 hbasequeue = value;
+            }
+        }
+
+        public string LogType
+        {
+            get
+            {
+                return logType;
+            }
+
+            set
+            {
+                logType = value;
             }
         }
     }
