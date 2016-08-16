@@ -16,6 +16,7 @@ namespace testClouder28
         private static int w_cnt = 0;
         public static int r_cnt = 0;
         private static object syncRoot = new object();
+        private static object syncRootLog = new object();
         
 
         public static  Task WriteToTask(OutObj obj)
@@ -84,7 +85,7 @@ namespace testClouder28
                 outer.OutStream.Write(sb.ToString());
                 outer.OutStream.Flush();
                 watch.Stop();
-                Console.WriteLine("当前时间：{0} 写入文件耗时{1}s 总写入记录数{1},写入日志类型{2}",
+                Console.WriteLine("当前时间：{0} 写入文件耗时{1}s 总写入记录数{2},写入日志类型{3}",
                     DateTime.Now, watch.ElapsedMilliseconds / 1000,i+sb.Length, outer.LogType);
                 sb.Clear();
 
@@ -139,13 +140,16 @@ namespace testClouder28
             while (!Program.allCompleted)
             {
                 Console.WriteLine("当前待处理日志文件数量:{0} 当前时间：{1},已用时{2}小时{3}分钟" , queue.Count,DateTime.Now.ToString(),(m_cnt)/60,(m_cnt)%60);
-                Program.log.WriteLine("hbase队列数据量:{0} 已写入 hbase数量{1} 当前时间 {2},已用时{3}小时{4}分钟", Program.pvHbaseQueue.Count,r_cnt,DateTime.Now.ToString(), (m_cnt) / 60, (m_cnt) % 60);
-                Program.log.WriteLine("当前待处理日志文件数量:{0} 当前时间：{1},已用时{2}小时{3}分钟", queue.Count, DateTime.Now.ToString(), (m_cnt) / 60, (m_cnt) % 60);
-                Program.log.WriteLine("当前已处理日志文件数量{0},pv:{1},uv:{2} hit:{3}", (Program.handlePvFileCnt + Program.handleUvFileCnt + Program.handleHitFileCnt),Program.handlePvFileCnt,Program.handleUvFileCnt,Program.handleHitFileCnt);
-                Program.log.WriteLine("当前待写入记录数{0},pv:{1},uv:{2} hit:{3}", (Program.pvDwFileQueue.Count + Program.uvDwFileQueue.Count + Program.hitDwFileQueue.Count), Program.pvDwFileQueue.Count, Program.uvDwFileQueue.Count, Program.hitDwFileQueue.Count);
-                Program.log.WriteLine("去重之前的记录数：pv:{0},uv:{1},hit:{2}", Program.pvModel.GetRCnt(), Program.uvModel.GetRCnt(), Program.hitModel.GetRCnt());
-                Program.log.WriteLine("有效记录数：pv:{0},uv:{1},hit:{2}",Program.pvModel.GetCnt(), Program.uvModel.GetCnt(), Program.hitModel.GetCnt());
-                Program.log.Flush();
+                lock (syncRootLog) {
+                    Program.log.WriteLine("hbase队列数据量:{0} 已写入 hbase数量{1} 当前时间 {2},已用时{3}小时{4}分钟", Program.pvHbaseQueue.Count, r_cnt, DateTime.Now.ToString(), (m_cnt) / 60, (m_cnt) % 60);
+                    Program.log.WriteLine("当前待处理日志文件数量:{0} 当前时间：{1},已用时{2}小时{3}分钟", queue.Count, DateTime.Now.ToString(), (m_cnt) / 60, (m_cnt) % 60);
+                    Program.log.WriteLine("当前已处理日志文件数量{0},pv:{1},uv:{2} hit:{3}", (Program.handlePvFileCnt + Program.handleUvFileCnt + Program.handleHitFileCnt), Program.handlePvFileCnt, Program.handleUvFileCnt, Program.handleHitFileCnt);
+                    Program.log.WriteLine("当前待写入记录数{0},pv:{1},uv:{2} hit:{3}", (Program.pvDwFileQueue.Count + Program.uvDwFileQueue.Count + Program.hitDwFileQueue.Count), Program.pvDwFileQueue.Count, Program.uvDwFileQueue.Count, Program.hitDwFileQueue.Count);
+                    Program.log.WriteLine("去重之前的记录数：pv:{0},uv:{1},hit:{2}", Program.pvModel.GetRCnt(), Program.uvModel.GetRCnt(), Program.hitModel.GetRCnt());
+                    Program.log.WriteLine("有效记录数：pv:{0},pv2:{1},uv:{2},hit:{3}", Program.pvModel.GetCnt(),Program.pv2Model.GetCnt(),Program.uvModel.GetCnt(), Program.hitModel.GetCnt());
+                    Program.log.Flush();
+                }
+              
                 m_cnt++;
                 Thread.Sleep(1000*60);
 
@@ -177,10 +181,14 @@ namespace testClouder28
                                 r_cnt += tmplist.Count;
                                 w_cnt++;
                             }
-                            Console.WriteLine("写入hbase:{0},{1}",i,tmplist.Count);
-                            //  await HBaseBLL.BatchInsertJsonAsync(tmplist, Program.pvModel);
-                            //       await outer.OutStream.WriteAsync(sb.ToString());
-
+                            Console.WriteLine("写入hbase:{0},{1}",r_cnt,tmplist.Count);
+                            var watch = new Stopwatch();
+                            watch.Start();
+                            await HBaseBLL.BatchInsertJsonAsync(tmplist, Program.pvModel);
+                            watch.Stop();
+                            lock(syncRootLog) {
+                                Program.log.WriteLine("写入hbase线程{0},写入hbase耗时{1}s", Thread.CurrentThread.ManagedThreadId, watch.ElapsedMilliseconds / 1000);
+                            }
                         }
                     }
                     

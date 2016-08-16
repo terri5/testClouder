@@ -4,10 +4,11 @@
     {
         public const string FILE_TYPE_UV = "uv";
         public const string FILE_TYPE_PV = "pv";
+        public const string FILE_TYPE_PV2 = "pv2";
         public const string FILE_TYPE_HIT ="hit";
         public const string PV1_FILE = "localhost.log";
         public const string PV2_FILE = "pv_http.log";
-        public const string PV3_FILE = "nginxproxy.log";
+        public const string PROXY_PV_FILE = "nginxproxy.log";
         public const string UV_FILE = "uv_time_flow.log";
         public const string HIT_FILE = "hit.log";
         private string fname;
@@ -19,8 +20,9 @@
             switch(Fname){
                 case PV1_FILE:
                 case PV2_FILE:
-                case PV3_FILE:
                     return FILE_TYPE_PV;
+                case PROXY_PV_FILE:
+                    return FILE_TYPE_PV2;
                 case UV_FILE:
                     return FILE_TYPE_UV;
                 case HIT_FILE:

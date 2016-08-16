@@ -157,6 +157,7 @@
     <Compile Include="Model\Hit.cs" />
     <Compile Include="Model\IHBaseModel.cs" />
     <Compile Include="Model\LogFile.cs" />
+    <Compile Include="Model\PV2.cs" />
     <Compile Include="Model\PV.cs" />
     <Compile Include="Model\UV.cs" />
     <Compile Include="OutObj.cs" />

@@ -16,10 +16,10 @@ using System.Threading;
 
 namespace AlalyzeLog.Worker.Model
 {
-    public class PV : IHBaseModel
+    public class PV2 : IHBaseModel
     {
-        public const string TABLE_NAME = "DEVICE_LOG_PV";
-        public const string COLUMN_FAMILY = "PV";
+        public const string TABLE_NAME = "DEVICE_LOG_PROXY_PV";
+        public const string COLUMN_FAMILY = "PV2";
         public const string ROW_KEY = "ROWKEY";
         public const string DMAC = "dmac";
         public const string MAC = "mac";
@@ -52,7 +52,7 @@ namespace AlalyzeLog.Worker.Model
         private long cnt = 0;
         private long RCnt = 0; //去重前的记录数
 
-        public PV()
+        public PV2()
         {
             initDirct();
         }
@@ -113,8 +113,8 @@ namespace AlalyzeLog.Worker.Model
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + CLIENT_AGENT.ToUpper()), data = Encoding.UTF8.GetBytes(pv.GetValue(CLIENT_AGENT, "").AsString) });
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + HTTP_METHOD.ToUpper()), data = Encoding.UTF8.GetBytes(pv.GetValue(HTTP_METHOD).AsString) });
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + HTTP_URI.ToUpper()), data = Encoding.UTF8.GetBytes(pv.GetValue(HTTP_URI).AsString) });
+                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + HTTP_HOST.ToUpper()), data = Encoding.UTF8.GetBytes(pv.GetValue(HTTP_HOST,"").AsString) });
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + HTTP_VERSION.ToUpper()), data = Encoding.UTF8.GetBytes(pv.GetValue(HTTP_VERSION).AsString) });
-                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + HTTP_HOST.ToUpper()), data = Encoding.UTF8.GetBytes(pv.GetValue(HTTP_HOST, "").AsString) });
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + DAY_ID.ToUpper()), data = Encoding.UTF8.GetBytes(pv.GetValue(DAY_ID).AsString) });
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + REFERER.ToUpper()), data = Encoding.UTF8.GetBytes(pv.GetValue(REFERER).AsString) });
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + CLIENT_OS.ToUpper()), data = Encoding.UTF8.GetBytes(pv.GetValue(CLIENT_OS).AsString) });
@@ -174,21 +174,21 @@ namespace AlalyzeLog.Worker.Model
                 obj.Add(DATETIME_POINT, date.ToString("yyyy-MM-dd HH:mm:ss"));
                 obj.Add("day_id", date.ToString("yyyyMMdd"));
                 string[] strs = StringUtil.GetStringsByRegex(StringUtil.regexQuotes, line);
+                
                 bool blnUrl = false, blnRequest = false;
-                string url = string.Empty, httpUri = string.Empty, httpMethod = string.Empty, httpVer = string.Empty,httpHost = string.Empty;
+                string url = string.Empty, httpUri = string.Empty, httpMethod = string.Empty, httpVer = string.Empty,httpHost=string.Empty;
                 foreach (string str in strs)
                 {
+                    
                     if (Regex.IsMatch(str, StringUtil.RegexUrl))
                     {
-                       
                         url = str;
                         blnUrl = true;
                     }
                     if (Regex.IsMatch(str, StringUtil.RexgexRequest))
                     {
-                        Console.Error.WriteLine(str);
-                        if (Regex.IsMatch(str, StringUtil.RegexHttpHost))
-                        {
+
+                        if (Regex.IsMatch(str, StringUtil.RegexHttpHost)) {
                             string host = Regex.Match(str, StringUtil.RegexHttpHost).Value;
                             httpHost = host.Trim();
                         }
@@ -225,7 +225,7 @@ namespace AlalyzeLog.Worker.Model
                     string rowkey = ConvertUtil.getHbaseRowKeyUnique(date, dmac);
                     obj.Add(ROW_KEY, rowkey);
                     return obj;
-                }       
+                }
                 return null;
             }
                 return null;
@@ -256,9 +256,9 @@ namespace AlalyzeLog.Worker.Model
                                       .Append(doc.GetValue(DAY_ID, "")).Append("\t")
                                       .Append(doc.GetValue(IN_DB_DATETIME,"")).Append("\t")
                                       .Append(DateTime.Now.ToString("yyyyMMddHHmmss")).Append("\t")
-                                      .Append(doc.GetValue(HTTP_HOST,"")).AppendLine();
+                                      .Append(doc.GetValue(HTTP_HOST,"").AsString).AppendLine();
 
-
+         
         }
 
         public ConcurrentQueue<string> GetDwFileQueue()

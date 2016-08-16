@@ -27,6 +27,8 @@ namespace AlalyzeLog.DBTools
         //Reuqest 
         public const string RexgexRequest = "(GET|POST|Get|Post|get|post)\\s{0,}\\S{2,}\\s{0,}(HTTP|http|Http)/\\d{0,}.\\d{0,}";
 
+        public const string RegexHttpHost = "(([a-zA-Z0-9_-])+(\\.)?)*(:\\d+)?";
+
         // ip流量
         private const string regexIpFlow = "\"192.168.(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5]).(\\d{1,2}|1\\d\\d|2[0-4]\\d|25[0-5])\"\\:\\s\\d+(\\.\\d+)?";
         private const string regexIpMacFlow = "{\"ip\":.*?\"mac\":.*?\"flow\":.*?}";
