@@ -57,7 +57,7 @@ namespace testClouder28
 
         public static string date2Handle = "20160817";
 
-        public const int AnlyzeThreadCnt = 32;//总解析线程数
+        public const int AnlyzeThreadCnt = 24;//总解析线程数
         public const int Write2HbaseThreadCnt = 1;//总写hbase线程数
 
         private static StreamWriter uv2f = null;
@@ -172,6 +172,7 @@ namespace testClouder28
             catch (Exception e)
             {
                 Console.Error.WriteLine(e.Message + "\r\n" + e.StackTrace);
+                WriteLog(e);
                 Console.ReadKey();
             }
             finally{
@@ -233,7 +234,7 @@ namespace testClouder28
                 OutObj tPvObj = new OutObj();
                 tPvObj.Queue = pvDwFileQueue;
                 tPvObj.OutStream = pv2f;
-                tPvObj.Batch = 100;
+                tPvObj.Batch = 100000;
                 Thread thPvW = new Thread(PipelineStages.Write2DwFileThread);
                 thPvW.Start(tPvObj);
 
@@ -423,6 +424,7 @@ namespace testClouder28
                 Console.Error.WriteLine(arr[3]);
                 Console.Error.WriteLine(e.Message);
                 Console.Error.WriteLine(e.StackTrace);
+                WriteLog(e);
             }
             
         }
@@ -501,7 +503,7 @@ namespace testClouder28
                 return true;
             }
             else {
-                Console.Error.WriteLine("非法的日期文件:" + tarName);
+              //  Console.Error.WriteLine("非法的日期文件:" + tarName);
                 return false;
             }
      
@@ -678,41 +680,47 @@ namespace testClouder28
 
         public static void EnqueueByDirAndFiles(string dirName, string[] flogs)
         {
-            string dmac;
-            if (dirName.ToUpper().StartsWith("GD")) //获取dmac
-            { //高达
-                dmac = dirName.Substring(0, dirName.IndexOf("-"));
-            }
-            else if (dirName.StartsWith("_"))
-            { //形如 -2016-08-07-16-02-03.tar.gz的文件 经过上一步程序处理
-                dmac = dirName.Substring(1, dirName.IndexOf("-") - 1);
-            }
-            else
-            {
-                dmac = dirName.Substring(0, 18).Replace("-", "");
-            }
-
-            foreach (var f in flogs)
-            {
-                LogFileInfo t = new LogFileInfo();
-                t.Fname = f.Substring(f.LastIndexOf(@"\") + 1);
-
-                if (!file2Handle.Contains(t.Fname)) continue;
-
-                t.Dmac = dmac;
-                t.Fullname = f;
-                //Console.WriteLine(t.Dmac);
-                if (String.IsNullOrEmpty(t.Dmac))
-                {
-                    Console.Error.WriteLine("dmac异常,dmac={0}", t.Dmac);
-                    Console.ReadKey();
+            try {
+                string dmac;
+                if (dirName.ToUpper().StartsWith("GD")) //获取dmac
+                { //高达
+                    dmac = dirName.Substring(0, dirName.IndexOf("-"));
                 }
-                //       Console.WriteLine("dmac="+t.Dmac);  
-                //      Console.WriteLine("get---->" + t.Fname);
-                logfiles.Enqueue(t);
-                //      Console.WriteLine(logfiles.Count);
+                else if (dirName.StartsWith("_"))
+                { //形如 -2016-08-07-16-02-03.tar.gz的文件 经过上一步程序处理
+                    dmac = dirName.Substring(1, dirName.IndexOf("-") - 1);
+                }
+                else
+                {
+                    dmac = dirName.Substring(0, 18).Replace("-", "");
+                }
 
-            }
+                foreach (var f in flogs)
+                {
+                    LogFileInfo t = new LogFileInfo();
+                    t.Fname = f.Substring(f.LastIndexOf(@"\") + 1);
+
+                    if (!file2Handle.Contains(t.Fname)) continue;
+
+                    t.Dmac = dmac;
+                    t.Fullname = f;
+                    //Console.WriteLine(t.Dmac);
+                    if (String.IsNullOrEmpty(t.Dmac))
+                    {
+                        Console.Error.WriteLine("dmac异常,dmac={0}", t.Dmac);
+                        Console.ReadKey();
+                    }
+                    //       Console.WriteLine("dmac="+t.Dmac);  
+                    //      Console.WriteLine("get---->" + t.Fname);
+                    logfiles.Enqueue(t);
+                    //      Console.WriteLine(logfiles.Count);
+
+                }
+            }catch(Exception e){
+                Console.WriteLine(e.Message + "\r\n" + e.StackTrace);
+                WriteLog(e);
+            } 
+         
 
         }
 
@@ -803,6 +811,7 @@ namespace testClouder28
                             catch (Exception e)
                             {
                                 Console.Error.WriteLine(outfile + "\n" + e.Message + "\n" + e.StackTrace);
+                                WriteLog(e);
 
                             }
                             finally
@@ -811,18 +820,19 @@ namespace testClouder28
                             }
                         }
 
-
+                        EnqueueByDirAndFiles(fdir, logs.ToArray());
                     }
                     catch (Exception e)
                     {
                         Console.Error.WriteLine(e.Message + "\n" + e.StackTrace);
+                        WriteLog(e);
                     }
                     finally
                     {
                         if (fs != null) fs.Close();
                         if (gzStream != null) gzStream.Close();
                     }
-                    EnqueueByDirAndFiles(fdir, logs.ToArray());
+              
                 });
             }
 
@@ -904,6 +914,7 @@ namespace testClouder28
                             catch (Exception e)
                             {    
                                 Console.Error.WriteLine(outfile + "\n" + e.Message + "\n" + e.StackTrace);
+                                WriteLog(e);
                                 break;
 
                             }
@@ -917,6 +928,7 @@ namespace testClouder28
                     catch (Exception e)
                     {
                         Console.Error.WriteLine(e.Message + "\n" + e.StackTrace);
+                        WriteLog(e);
                     }
                     finally
                     {
