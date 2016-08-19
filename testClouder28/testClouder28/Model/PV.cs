@@ -119,7 +119,7 @@ namespace AlalyzeLog.Worker.Model
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + REFERER.ToUpper()), data = Encoding.UTF8.GetBytes(pv.GetValue(REFERER).AsString) });
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + CLIENT_OS.ToUpper()), data = Encoding.UTF8.GetBytes(pv.GetValue(CLIENT_OS).AsString) });
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + MOBILE_BRAND.ToUpper()), data = Encoding.UTF8.GetBytes(pv.GetValue(MOBILE_BRAND).AsString) });
-                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + CLIENT_BROWSER.ToUpper()), data = Encoding.UTF8.GetBytes(pv.GetValue(CLIENT_BROWSER).AsString) });
+                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + CLIENT_BROWSER.ToUpper()), data = Encoding.UTF8.GetBytes(pv.GetValue(CLIENT_BROWSER).AsString)});
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + IN_DB_DATETIME.ToUpper()), data = Encoding.UTF8.GetBytes(pv.GetValue(IN_DB_DATETIME).AsInt64 + "") });
 
             }
@@ -186,10 +186,9 @@ namespace AlalyzeLog.Worker.Model
                     }
                     if (Regex.IsMatch(str, StringUtil.RexgexRequest))
                     {
-                        Console.Error.WriteLine(str);
-                        if (Regex.IsMatch(str, StringUtil.RegexHttpHost))
+                        string host = Regex.Match(str, StringUtil.RegexHttpHost).Value;
+                        if (!Regex.IsMatch(host.Trim().ToUpper(), "^(GET|POST)"))
                         {
-                            string host = Regex.Match(str, StringUtil.RegexHttpHost).Value;
                             httpHost = host.Trim();
                         }
 

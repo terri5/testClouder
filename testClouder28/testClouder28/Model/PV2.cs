@@ -187,9 +187,9 @@ namespace AlalyzeLog.Worker.Model
                     }
                     if (Regex.IsMatch(str, StringUtil.RexgexRequest))
                     {
-
-                        if (Regex.IsMatch(str, StringUtil.RegexHttpHost)) {
-                            string host = Regex.Match(str, StringUtil.RegexHttpHost).Value;
+                        string host = Regex.Match(str, StringUtil.RegexHttpHost).Value;
+                        if (!Regex.IsMatch(host.Trim().ToUpper(), "^(GET|POST)"))
+                        {
                             httpHost = host.Trim();
                         }
 

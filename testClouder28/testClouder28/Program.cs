@@ -55,10 +55,10 @@ namespace testClouder28
 
         public static System.Collections.Generic.HashSet<string> file2Handle = new System.Collections.Generic.HashSet<string>();
 
-        public static string date2Handle = "20160815";
+        public static string date2Handle = "20160817";
 
-        public const int AnlyzeThreadCnt = 1;//总解析线程数
-        public const int Write2HbaseThreadCnt = 32;//总写hbase线程数
+        public const int AnlyzeThreadCnt = 32;//总解析线程数
+        public const int Write2HbaseThreadCnt = 1;//总写hbase线程数
 
         private static StreamWriter uv2f = null;
         private static StreamWriter pv2f = null;
@@ -68,7 +68,7 @@ namespace testClouder28
         public static FileStream log_err = null;
 
 
-        public static string driver = "D:";
+        public static string driver = "E:";
         /**
         * 整理后的文件目录
         */
@@ -79,18 +79,32 @@ namespace testClouder28
         public static string orgin_dir = driver + "\\" + date2Handle.Substring(4);
 
 
-        private static string dataDirRoot = @"\test-data\";
+        private static string dataDirRoot = driver + @"\test-data\";
         
         private static void initFolders()
         {
-            uv2f = new StreamWriter(new FileStream(driver + dataDirRoot + date2Handle.Substring(4) + "\\uv.txt", FileMode.Append), Encoding.GetEncoding("gb2312"));
-            pv2f = new StreamWriter(new FileStream(driver + dataDirRoot + date2Handle.Substring(4) + "\\pv.txt", FileMode.Append), Encoding.GetEncoding("gb2312"));
-            hit2f = new StreamWriter(new FileStream(driver + dataDirRoot + date2Handle.Substring(4) + "\\hit.txt", FileMode.Append), Encoding.GetEncoding("gb2312"));
-            pv22f = new StreamWriter(new FileStream(driver + dataDirRoot + date2Handle.Substring(4) + "\\proxy_pv.txt", FileMode.Append), Encoding.GetEncoding("gb2312"));
+            string dataDir =dataDirRoot + date2Handle.Substring(4);
+            if (!Directory.Exists(dataDir)) {
+                Directory.CreateDirectory(dataDir);//创建新路径
+            }
+            uv2f = new StreamWriter(new FileStream( dataDir+ "\\uv.txt", FileMode.Append), Encoding.GetEncoding("gb2312"));
+            pv2f = new StreamWriter(new FileStream(dataDir + "\\pv.txt", FileMode.Append), Encoding.GetEncoding("gb2312"));
+            hit2f = new StreamWriter(new FileStream(dataDir + "\\hit.txt", FileMode.Append), Encoding.GetEncoding("gb2312"));
+            pv22f = new StreamWriter(new FileStream(dataDir + "\\proxy_pv.txt", FileMode.Append), Encoding.GetEncoding("gb2312"));
         }
-        private static void initLogFolders() {        
-            log = new StreamWriter(new FileStream(driver + dataDirRoot + "exe-" + DateTime.Now.ToString("yyyy-MM-dd-HH-MM") + ".log", FileMode.Append), Encoding.GetEncoding("UTF-8"));
-            log_err = new FileStream(driver + dataDirRoot + "err-" + DateTime.Now.ToString("yyyy-MM-dd-HH-MM") + ".log", FileMode.Append);
+        private static void initLogFolders() {
+
+            if (!Directory.Exists(correct_dir)){
+                Console.WriteLine(correct_dir);
+                Directory.CreateDirectory(correct_dir);//创建新路径
+            }
+            if (!Directory.Exists(dataDirRoot))
+            {
+                Directory.CreateDirectory(dataDirRoot);//创建新路径
+            }
+
+            log = new StreamWriter(new FileStream(dataDirRoot + "exe-" + DateTime.Now.ToString("yyyy-MM-dd-HH-MM") + ".log", FileMode.Append), Encoding.GetEncoding("UTF-8"));
+            log_err = new FileStream(dataDirRoot + "err-" + DateTime.Now.ToString("yyyy-MM-dd-HH-MM") + ".log", FileMode.Append);
         }
 
         public static System.Collections.Concurrent.ConcurrentQueue<LogFileInfo> logfiles = new ConcurrentQueue<LogFileInfo>();
@@ -141,7 +155,7 @@ namespace testClouder28
 
                 Thread monitor = new Thread(PipelineStages.MonitorThread);//首先启动监控线程
                 monitor.Start(logfiles);
-                // testHbaseWrite(date2Handle);
+             //   testHbaseWrite(date2Handle);
                 anlylog();
                 Console.WriteLine("处理文档数量{0},pv:{1},pv2:{2},uv:{3},hit:{4}", handleFileCnt, handlePv2FileCnt, handlePvFileCnt, handleUvFileCnt, handleHitFileCnt);
                 Console.WriteLine("处理有效记录数量 pv:{0},pv2:{1},uv:{2},hit:{3}", pvModel.GetCnt(),pv2Model.GetCnt(),uvModel.GetCnt(), hitModel.GetCnt());
@@ -158,6 +172,7 @@ namespace testClouder28
             catch (Exception e)
             {
                 Console.Error.WriteLine(e.Message + "\r\n" + e.StackTrace);
+                Console.ReadKey();
             }
             finally{
 
@@ -184,7 +199,7 @@ namespace testClouder28
                 //        file2Handle.Add(LogFileInfo.UV_FILE);  //uv ok!
 
                 file2Handle.Add(LogFileInfo.PV1_FILE);
-                file2Handle.Add(LogFileInfo.PROXY_PV_FILE);
+//                file2Handle.Add(LogFileInfo.PROXY_PV_FILE);
                 file2Handle.Add(LogFileInfo.PV2_FILE);   //pv
                 initFolders();
                 string fileStrs = "";
@@ -194,12 +209,12 @@ namespace testClouder28
 
                 Console.WriteLine("处理文件{0}", fileStrs.Substring(1));
                 //方法1
-                /*
-                       move2NormalParallel();
-                       Console.WriteLine("解压日期：{0}完成", date2Handle);
-                       Console.ReadKey();
-                       return;
-                       */
+                
+              //  move2NormalParallel();
+              //  Console.WriteLine("解压日期：{0}完成", date2Handle);
+                //       Console.ReadKey();
+                //       return;
+                       
 
 
                 List<Thread> analyzedThreads = new List<Thread>();
@@ -215,6 +230,14 @@ namespace testClouder28
                 }
 
 
+                OutObj tPvObj = new OutObj();
+                tPvObj.Queue = pvDwFileQueue;
+                tPvObj.OutStream = pv2f;
+                tPvObj.Batch = 100;
+                Thread thPvW = new Thread(PipelineStages.Write2DwFileThread);
+                thPvW.Start(tPvObj);
+
+                /*
                 OutObj tPv2Obj = new OutObj();
                 tPv2Obj.Queue = pv2DwFileQueue;
                 tPv2Obj.OutStream = pv22f;
@@ -224,15 +247,7 @@ namespace testClouder28
                 thPv2.Start(tPv2Obj);
 
 
-
-                OutObj tPvObj = new OutObj();
-                tPvObj.Queue = pvDwFileQueue;
-                tPvObj.OutStream = pv2f;
-                tPvObj.Batch = 100;
-                Thread thPv = new Thread(PipelineStages.Write2DwFileThread);
-                thPv.Start(tPvObj);
-
-                /*
+                
                             OutObj tUvObj = new OutObj();
                             tUvObj.Queue = uvDwFileQueue;
                             tUvObj.OutStream = uv2f;
@@ -261,12 +276,12 @@ namespace testClouder28
 
                 //第一种方法
 
-                var dirs = Directory.GetDirectories(correct_dir);
-                LoadDirParallel(dirs);
-                                 
+                // var dirs = Directory.GetDirectories(correct_dir);
+                //  LoadDirParallel(dirs);
+
                 //方法2
 
-            //    move2NormalParallelAndEnqueue();
+                move2NormalParallelAndEnqueue();
                 addCompleted = true;
 
                 foreach (Thread t in analyzedThreads)
@@ -275,8 +290,8 @@ namespace testClouder28
                 }
 
                 anlyzeCompleted = true;
-
-                thPv2.Join();
+                thPvW.Join();
+              //  thPv2.Join();
                 //  thUv.Join();
 
                 //   thHit.Join();
@@ -330,41 +345,6 @@ namespace testClouder28
             }
             allCompleted = true;
 
-        }
-
-        public static void StartOutPutTask()
-        {
-            OutObj tPvObj = new OutObj();
-            tPvObj.Queue = pvDwFileQueue;
-            tPvObj.OutStream = pv2f;
-            tPvObj.Batch = 500000;
-            taskPv = PipelineStages.Write2DwFileTask(tPvObj);
-            /**
-                        OutObj tUvObj = new OutObj();
-                        tUvObj.Queue = uvDwFileQueue;
-                        tUvObj.OutStream = uv2f;
-                        tUvObj.Batch = 10000;
-                        taskUv = PipelineStages.Write2DwFileTask(tUvObj);
-
-                        OutObj tHitObj = new OutObj();
-                        tHitObj.Queue = hitDwFileQueue;
-                        tHitObj.OutStream = hit2f;
-                        tHitObj.Batch = 10000;
-                        taskHit = PipelineStages.Write2DwFileTask(tHitObj);
-            **/
-
-
-
-
-
-
-
-        }
-        public static void WaitOutput()
-        {
-            taskPv.Wait();
-            taskUv.Wait();
-            taskHit.Wait();
         }
 
         public static void LoadDirParallel(string[] dirs)
