@@ -55,9 +55,9 @@ namespace testClouder28
 
         public static System.Collections.Generic.HashSet<string> file2Handle = new System.Collections.Generic.HashSet<string>();
 
-        public static string date2Handle = "20160817";
+        public static string date2Handle = "20160820";
 
-        public const int AnlyzeThreadCnt = 24;//总解析线程数
+        public const int AnlyzeThreadCnt = 16;//总解析线程数
         public const int Write2HbaseThreadCnt = 1;//总写hbase线程数
 
         private static StreamWriter uv2f = null;
@@ -195,7 +195,7 @@ namespace testClouder28
         public static void anlylog() {
             try
             {
-                //       file2Handle.Add(LogFileInfo.HIT_FILE);  //hit 
+                file2Handle.Add(LogFileInfo.HIT_FILE);  //hit 
 
                 //        file2Handle.Add(LogFileInfo.UV_FILE);  //uv ok!
 
@@ -210,12 +210,12 @@ namespace testClouder28
 
                 Console.WriteLine("处理文件{0}", fileStrs.Substring(1));
                 //方法1
-                
-              //  move2NormalParallel();
-              //  Console.WriteLine("解压日期：{0}完成", date2Handle);
-                //       Console.ReadKey();
-                //       return;
-                       
+                /*
+                move2NormalParallel();
+                Console.WriteLine("解压日期：{0}完成", date2Handle);
+                Console.ReadKey();
+                return;
+                 */      
 
 
                 List<Thread> analyzedThreads = new List<Thread>();
@@ -256,16 +256,15 @@ namespace testClouder28
                 
                             Thread thUv = new Thread(PipelineStages.Write2DwFileThread);
                             thUv.Start(tUvObj);
-
-
-                            OutObj tHitObj = new OutObj();
-                            tHitObj.Queue = hitDwFileQueue;
-                            tHitObj.OutStream = hit2f;
-                            tHitObj.Batch = 10000;
-
-                            Thread thHit = new Thread(PipelineStages.Write2DwFileThread);
-                            thHit.Start(tHitObj);
                             */
+
+                OutObj tHitObj = new OutObj();
+                tHitObj.Queue = hitDwFileQueue;
+                tHitObj.OutStream = hit2f;
+                tHitObj.Batch = 100000;
+
+                Thread thHit = new Thread(PipelineStages.Write2DwFileThread);
+                thHit.Start(tHitObj);
 
                 /*
                 List<Task> wrtite2HbaseTasks = new List<Task>();
@@ -295,7 +294,7 @@ namespace testClouder28
               //  thPv2.Join();
                 //  thUv.Join();
 
-                //   thHit.Join();
+                thHit.Join();
 
 
                 /*
@@ -619,6 +618,7 @@ namespace testClouder28
             string line = null;
             HashSet<string> ids = new HashSet<string>();
             ConcurrentQueue<string> queue = null;
+            int rcnt = 0;
 
             queue = model.GetDwFileQueue();
 
@@ -633,14 +633,13 @@ namespace testClouder28
                     {
 
                         string id = doc.GetValue("_id").AsString;
-                        model.AddRCnt1();
+                        rcnt++;
                         if (ids.Add(id))
                         {
                             try
                             {
                                 model.BsonToDw(doc, sb);
                                 queue.Enqueue(sb.ToString());
-                                model.AddCnt1();
                                 sb.Clear();
                             }
                             catch (Exception e)
@@ -658,6 +657,8 @@ namespace testClouder28
 
                     }
                 }
+                model.AddCnt(ids.Count);
+                model.AddRCnt(rcnt);
                 ids.Clear();
 
                 while (queue.Count > 4 * 100000)

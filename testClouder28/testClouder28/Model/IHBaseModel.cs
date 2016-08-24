@@ -20,6 +20,8 @@ namespace analyzeLogWorkRole.Model
         ConcurrentQueue<string> GetDwFileQueue();
         void AddCnt1();
         void AddRCnt1();
+        void AddCnt(int cnt);
+        void AddRCnt(int cnt);
     }
 
 

@@ -181,6 +181,16 @@ namespace AlalyzeLog.Worker.Model
             Interlocked.Increment(ref RCnt);
         }
 
+        public void AddCnt(int cnt1)
+        {
+            Interlocked.Add(ref cnt, cnt1);
+        }
+
+        public void AddRCnt(int cnt1)
+        {
+            Interlocked.Add(ref RCnt, cnt1);
+        }
+
 
     }
 }
