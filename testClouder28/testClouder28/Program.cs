@@ -158,11 +158,17 @@ namespace testClouder28
                 Console.WriteLine(date2Handle + "开始时间{0},处理日期{1}", DateTime.Now, date2Handle);
 
                 Thread monitor = new Thread(PipelineStages.MonitorThread);//首先启动监控线程
-                //monitor.Start(logfiles);
+                monitor.Start(logfiles);
+
+
+
                 // testHbaseWrite(20160817+"");
                 //  readFile2Dw(date2Handle);
                    anlylog();
                // anlylogFromBlob();
+
+
+
                 Console.WriteLine("处理文档数量{0},pv:{1},pv2:{2},uv:{3},hit:{4}", handleFileCnt, handlePv2FileCnt, handlePvFileCnt, handleUvFileCnt, handleHitFileCnt);
                 Console.WriteLine("处理有效记录数量 pv:{0},pv2:{1},uv:{2},hit:{3}", pvModel.GetCnt(),pv2Model.GetCnt(),uvModel.GetCnt(), hitModel.GetCnt());
 
