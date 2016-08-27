@@ -880,7 +880,7 @@ namespace testClouder28
                         while (entry != null)
                         {
                             Stream streamOut = null;
-
+                            
                             string fileName = entry.Name.Substring(entry.Name.LastIndexOf("/") + 1);
                             outfile = outDir + "\\" + fileName;
                             //  Console.WriteLine(outfile);
@@ -903,17 +903,16 @@ namespace testClouder28
                                 entry = tarStream.GetNextEntry();
                                 continue;
                             }
-                            streamOut = new FileStream(outfile, FileMode.CreateNew);
-                            tarStream.CopyEntryContents(streamOut);
-
-                            logs.Add(outfile);
-
-                            if (logs.Count > 10000)
-                            {
-                                EnqueueByDirAndFiles(fdir, logs.ToArray());
-                                logs = new List<string>();
+                            using (streamOut = new FileStream(outfile, FileMode.CreateNew)) {
+                                tarStream.CopyEntryContents(streamOut);
+                                logs.Add(outfile);
+                                if (logs.Count > 10000)
+                                {
+                                    EnqueueByDirAndFiles(fdir, logs.ToArray());
+                                    logs = new List<string>();
+                                }
+                                entry = tarStream.GetNextEntry();
                             }
-                            entry = tarStream.GetNextEntry();
                         }
                     }
                     catch (Exception e)
@@ -922,13 +921,11 @@ namespace testClouder28
                         WriteLog(e);
                     }
                     finally {
-                        if (gzStream != null) gzStream.Close();
                         if (fs != null) fs.Close();
-
                     }
-                        EnqueueByDirAndFiles(fdir, logs.ToArray());
-                
-              
+
+                  if(logs.Count>0) EnqueueByDirAndFiles(fdir, logs.ToArray());
+
                 });
             }
 
@@ -954,89 +951,79 @@ namespace testClouder28
 
                 Parallel.ForEach(files, (file) =>
                 {
-                    if (!IsValidTar(file)) return;
+                if (!IsValidTar(file)) return;
 
-                    string outDir = "";
-                    string fname = file.Substring(file.LastIndexOf("\\") + 1);
-                    string fdir = fname.Substring(0, fname.Length - 7);
+                string outDir = "";
+                string fname = file.Substring(file.LastIndexOf("\\") + 1);
+                string fdir = fname.Substring(0, fname.Length - 7);
 
-                    if (fdir.StartsWith("-")) fdir = "_" + dir.Substring(dir.LastIndexOf("\\") + 1).ToUpper() + fdir;
-                    if (fdir.StartsWith("sys")) fdir = fdir.Substring(4);  //sys-58-69-6C-03-C7-D6-16-06-14-10-00-32.tar.gz
+                if (fdir.StartsWith("-")) fdir = "_" + dir.Substring(dir.LastIndexOf("\\") + 1).ToUpper() + fdir;
+                if (fdir.StartsWith("sys")) fdir = fdir.Substring(4);  //sys-58-69-6C-03-C7-D6-16-06-14-10-00-32.tar.gz
 
-                    outDir = cor_path + "\\" + fdir;
+                outDir = cor_path + "\\" + fdir;
 
-                    try
+                try
+                {
+                    string path = outDir;
+                    if (!Directory.Exists(path))
+                    {//判断是否存在
+                        Directory.CreateDirectory(path);//创建新路径
+                    }
+                    else return; //如果已经存在，则认为已解压
+                }
+                catch (Exception e)
+                {
+                    Console.Error.WriteLine("path=" + outDir);
+                    Console.Error.WriteLine(e.Message + "\n" + e.StackTrace);
+                    WriteLog(e);
+                }
+                FileStream fs = null;
+                GZipInputStream gzStream = null;
+                TarInputStream tarStream = null;
+                List<string> logs = new List<string>();
+                string outfile = null;
+                try
+                {
+                    fs = new FileStream(file, FileMode.Open);
+                    gzStream = new GZipInputStream(fs);
+                    tarStream = new TarInputStream(gzStream);
+
+                    List<Stream> outers = new List<Stream>();
+                    TarEntry entry = tarStream.GetNextEntry();
+                    while (entry != null)
                     {
-                        string path = outDir;
-                        if (!Directory.Exists(path))
-                        {//判断是否存在
-                            Directory.CreateDirectory(path);//创建新路径
+                        Stream streamOut = null;
+
+                        string fileName = entry.Name.Substring(entry.Name.LastIndexOf("/") + 1);
+                        outfile = outDir + "\\" + fileName;
+                        if (!file2Handle.Contains(fileName)) {
+                            entry = tarStream.GetNextEntry();
+                            continue;
                         }
-                        else return; //如果已经存在，则认为已解压
-                    }
-                    catch (Exception e)
-                    {
-                        Console.Error.WriteLine("path=" + outDir);
-                        Console.Error.WriteLine(e.Message + "\n" + e.StackTrace);
-                        WriteLog(e);
-                    }
-                    FileStream fs = null;
-                    GZipInputStream gzStream = null;
-                    TarInputStream tarStream = null;
-                    List<string> logs = new List<string>();
-                    try
-                    {
-                        fs = new FileStream(file, FileMode.Open);
-                        gzStream = new GZipInputStream(fs);
-                        tarStream = new TarInputStream(gzStream);
-
-                        List<Stream> outers = new List<Stream>();
-                        TarEntry entry = tarStream.GetNextEntry();
-                        while (entry != null)
+                        if (File.Exists(outfile))
                         {
-                            Stream streamOut = null;
-                            string outfile = null;
-                            try
-                            {
-                                string fileName = entry.Name.Substring(entry.Name.LastIndexOf("/") + 1);
-                                outfile = outDir + "\\" + fileName;
-                                if (!file2Handle.Contains(fileName)) {
-                                    entry = tarStream.GetNextEntry();
-                                    continue;
-                                } 
-                                if (File.Exists(outfile))
-                                {
-                                    entry = tarStream.GetNextEntry();
-                                    continue;
-                                }
-                                streamOut = new FileStream(outfile, FileMode.CreateNew);
-                                tarStream.CopyEntryContents(streamOut);
-                                entry = tarStream.GetNextEntry();
-                            }
-                            catch (Exception e)
-                            {    
-                                Console.Error.WriteLine(outfile + "\n" + e.Message + "\n" + e.StackTrace);
-                                WriteLog(e);
-                                break;
-
-                            }
-                            finally
-                            {
-                                if (streamOut != null) streamOut.Close();
-                            }
+                            entry = tarStream.GetNextEntry();
+                            continue;
                         }
+                        using (streamOut = new FileStream(outfile, FileMode.CreateNew)) {
 
-                    }
-                    catch (Exception e)
-                    {
-                        Console.Error.WriteLine(e.Message + "\n" + e.StackTrace);
-                        WriteLog(e);
-                    }
-                    finally
-                    {
-                        if (fs != null) fs.Close();
-                        if (gzStream != null) gzStream.Close();
-                    }
+                            tarStream.CopyEntryContents(streamOut);
+                            entry = tarStream.GetNextEntry();
+
+                        }
+                               
+                      }
+        
+
+                 } catch (Exception e){
+                    Console.Error.WriteLine(outfile + "\n" + e.Message + "\n" + e.StackTrace);
+                    WriteLog(e);
+                }
+                finally
+                {
+                    if (fs != null) fs.Close();
+                       
+                }
                  
                 });
             }
