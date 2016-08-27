@@ -1,8 +1,11 @@
-﻿using AlayzeLog.DBTools;
+﻿using AlalyzeLog.DBTools;
+using AlayzeLog.DBTools;
 using MongoDB.Bson;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
@@ -72,8 +75,8 @@ namespace testClouder28
 
                 } else if (outer.Queue.Count == 0)
                 {
-                    Console.WriteLine("写入DwFile线程{0}睡眠{1}秒", Thread.CurrentThread.ManagedThreadId,20);
-                    Thread.Sleep(1000*20);
+                    Console.WriteLine("写入DwFile线程{0}睡眠{1}秒", Thread.CurrentThread.ManagedThreadId,5);
+                    Thread.Sleep(1000*5);
                 }
 
             }
@@ -92,6 +95,54 @@ namespace testClouder28
             }
 
         }
+
+        public static void Write2Dw(Object obj)
+        {
+           
+            if (obj == null) return;
+            OutObj outer = obj as OutObj;
+            StringBuilder sb = new StringBuilder();
+            using (SqlConnection conn = new SqlConnection(Program.cnstr)) {
+                conn.Open();
+                DataTable dt = new DataTable();
+                outer.Model.SetDataTableColumnsFromDB(dt, conn,outer.Model.getDwTable());
+                long count = 0;
+
+                while (!Program.anlyzeCompleted || outer.Queue.Count > 0)
+                {
+                    string tmp = null;
+                    Boolean geted = outer.Queue.TryDequeue(out tmp);
+                    if (geted) {
+                        string line = tmp.ToString();
+                        outer.Model.SetDataRow(dt, line.Substring(0, line.Length - 2).Split('\t'));
+                        count++;
+                        /**
+                        if (count % 100000 == 0)
+                        {
+                            Console.WriteLine(DateTime.Now + " " + count);
+                        }
+                       **/
+                        if (count % Program.step==0)
+                        {//提交数据  
+                            DataExtUtil.BatchCopyDataToSqlDw(Program.step, dt, conn, outer.Model.getDwTable());
+                            Console.WriteLine("{0} {1} 线程{2}写入Dw总数 {3}",DateTime.Now,outer.Model.GetColumnFamily(),Thread.CurrentThread.ManagedThreadId,count);
+                        }
+                    } else if (outer.Queue.Count == 0)
+                    {
+                        Console.WriteLine("写入Dw线程{0}睡眠{1}秒", Thread.CurrentThread.ManagedThreadId, 5);
+                        Thread.Sleep(1000 * 5);
+                    }
+                }
+                if (dt.Rows.Count > 0)
+                {//补充提交尾巴数据
+                    DataExtUtil.BatchCopyDataToSqlDw(Program.step, dt, conn, outer.Model.getDwTable());
+                }
+                conn.Close();
+         }
+
+
+      }
+        
 
         public static  Task Write2DwFileTask(Object obj)
         {
@@ -143,9 +194,9 @@ namespace testClouder28
                 lock (syncRootLog) {
                     Program.log.WriteLine("hbase队列数据量:{0} 已写入 hbase数量{1} 当前时间 {2},已用时{3}小时{4}分钟", Program.pvHbaseQueue.Count, r_cnt, DateTime.Now.ToString(), (m_cnt) / 60, (m_cnt) % 60);
                     Program.log.WriteLine("当前待处理日志文件数量:{0} 当前时间：{1},已用时{2}小时{3}分钟", queue.Count, DateTime.Now.ToString(), (m_cnt) / 60, (m_cnt) % 60);
-                    Program.log.WriteLine("当前已处理日志文件数量{0},pv:{1},uv:{2} hit:{3}", (Program.handlePvFileCnt + Program.handleUvFileCnt + Program.handleHitFileCnt), Program.handlePvFileCnt, Program.handleUvFileCnt, Program.handleHitFileCnt);
-                    Program.log.WriteLine("当前待写入记录数{0},pv:{1},uv:{2} hit:{3}", (Program.pvDwFileQueue.Count + Program.uvDwFileQueue.Count + Program.hitDwFileQueue.Count), Program.pvDwFileQueue.Count, Program.uvDwFileQueue.Count, Program.hitDwFileQueue.Count);
-                    Program.log.WriteLine("去重之前的记录数：pv:{0},uv:{1},hit:{2}", Program.pvModel.GetRCnt(), Program.uvModel.GetRCnt(), Program.hitModel.GetRCnt());
+                    Program.log.WriteLine("当前已处理日志文件数量{0},pv:{1},pv2:{2}，uv:{3} hit:{4}", (Program.handlePvFileCnt + Program.handlePv2FileCnt + Program.handleUvFileCnt + Program.handleHitFileCnt), Program.handlePvFileCnt, Program.handlePv2FileCnt, Program.handleUvFileCnt, Program.handleHitFileCnt);
+                    Program.log.WriteLine("当前待写入记录数{0},pv:{1},pv2:{2},uv:{3} hit:{4}", (Program.pvDwFileQueue.Count + Program.pv2DwFileQueue.Count + Program.uvDwFileQueue.Count + Program.hitDwFileQueue.Count), Program.pvDwFileQueue.Count, Program.pv2DwFileQueue.Count,Program.uvDwFileQueue.Count, Program.hitDwFileQueue.Count);
+                    Program.log.WriteLine("去重之前的记录数：pv:{0},pv2:{1},uv:{2},hit:{3}", Program.pvModel.GetRCnt(), Program.pv2Model.GetRCnt(), Program.uvModel.GetRCnt(), Program.hitModel.GetRCnt());
                     Program.log.WriteLine("有效记录数：pv:{0},pv2:{1},uv:{2},hit:{3}", Program.pvModel.GetCnt(),Program.pv2Model.GetCnt(),Program.uvModel.GetCnt(), Program.hitModel.GetCnt());
                     Program.log.Flush();
                 }
@@ -187,7 +238,7 @@ namespace testClouder28
                             await HBaseBLL.BatchInsertJsonAsync(tmplist, Program.pvModel);
                             watch.Stop();
                             lock(syncRootLog) {
-                                Program.log.WriteLine("写入hbase线程{0},写入hbase耗时{1}s", Thread.CurrentThread.ManagedThreadId, watch.ElapsedMilliseconds / 1000);
+                                Console.WriteLine("写入hbase线程{0},写入hbase耗时{1}s", Thread.CurrentThread.ManagedThreadId, watch.ElapsedMilliseconds / 1000);
                             }
                         }
                     }

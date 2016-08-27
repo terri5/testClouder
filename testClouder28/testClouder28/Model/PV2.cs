@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 using testClouder28;
 using System.Collections.Concurrent;
 using System.Threading;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace AlalyzeLog.Worker.Model
 {
@@ -290,6 +292,26 @@ namespace AlalyzeLog.Worker.Model
         public void AddRCnt(int cnt1)
         {
             Interlocked.Add(ref RCnt, cnt1);
+        }
+
+        public void SetDataTableColumnsFromDB(DataTable dt, SqlConnection conn, object dW_TABLE)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetDataRow(DataTable dt, string[] data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string getDwTable()
+        {
+            return "";
+        }
+
+        public void SetDataTableColumnsFromDB(DataTable dt, SqlConnection conn, string tabName)
+        {
+            throw new NotImplementedException();
         }
     }
 

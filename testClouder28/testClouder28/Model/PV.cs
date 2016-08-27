@@ -13,12 +13,14 @@ using System.Threading.Tasks;
 using testClouder28;
 using System.Collections.Concurrent;
 using System.Threading;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace AlalyzeLog.Worker.Model
 {
     public class PV : IHBaseModel
     {
-        public const string TABLE_NAME = "DEVICE_LOG_PV";
+        public const string TABLE_NAME = "T_DEVICE_LOG_PV";
         public const string COLUMN_FAMILY = "PV";
         public const string ROW_KEY = "ROWKEY";
         public const string DMAC = "dmac";
@@ -36,7 +38,7 @@ namespace AlalyzeLog.Worker.Model
         public const string CLIENT_OS = "client_os";
         public const string MOBILE_BRAND = "mobile_brand";
         public const string CLIENT_BROWSER = "client_browser";
-        public readonly int BATHCH = 10000;
+        public readonly int BATHCH = 5000;
 
         private readonly Dictionary<string, string> mobile_os_dict = new Dictionary<string, string>();
         private string os_str_regex = "";
@@ -289,6 +291,21 @@ namespace AlalyzeLog.Worker.Model
         public void AddRCnt(int cnt1)
         {
             Interlocked.Add(ref RCnt,cnt1);
+        }
+
+        public void SetDataRow(DataTable dt, string[] p)
+        {
+            throw new NotImplementedException();
+        }
+
+        public string getDwTable()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetDataTableColumnsFromDB(DataTable dt, SqlConnection conn, string tabName)
+        {
+            throw new NotImplementedException();
         }
     }
 

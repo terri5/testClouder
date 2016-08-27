@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using analyzeLogWorkRole.Model;
+using MongoDB.Bson;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ namespace testClouder28
     {
         private ConcurrentQueue<string> queue;
         private ConcurrentQueue<BsonDocument> hbasequeue;
+        private IHBaseModel model;
         private StreamWriter outStream;
         private int batch;
         private string logType;
@@ -83,6 +85,19 @@ namespace testClouder28
             set
             {
                 logType = value;
+            }
+        }
+
+        public IHBaseModel Model
+        {
+            get
+            {
+                return model;
+            }
+
+            set
+            {
+                model = value;
             }
         }
     }

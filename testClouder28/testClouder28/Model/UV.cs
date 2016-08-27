@@ -10,6 +10,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace AlalyzeLog.Worker.Model
 {
@@ -192,5 +194,19 @@ namespace AlalyzeLog.Worker.Model
         }
 
 
+        public string getDwTable()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetDataRow(DataTable dt, string[] data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetDataTableColumnsFromDB(DataTable dt, SqlConnection conn, string tabName)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

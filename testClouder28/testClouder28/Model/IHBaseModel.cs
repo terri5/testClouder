@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data;
+using System.Data.SqlClient;
 
 namespace analyzeLogWorkRole.Model
 {
@@ -22,6 +24,9 @@ namespace analyzeLogWorkRole.Model
         void AddRCnt1();
         void AddCnt(int cnt);
         void AddRCnt(int cnt);
+        void SetDataTableColumnsFromDB(DataTable dt, SqlConnection conn, string tabName);
+        void SetDataRow(DataTable dt,string[] data);
+        string getDwTable();
     }
 
 

@@ -10,12 +10,15 @@ using AlalyzeLog.DBTools;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Text.RegularExpressions;
+using System.Data.SqlClient;
+using System.Data;
 
 namespace analyzeLogWorkRole.Model
 {
     class Hit : IHBaseModel
     {
         public const string HBASE_TABLE = "DEV_HIT_BASE";
+        public const string DW_TABLE = "etl.device_log_hit_base_20160826";
         public const string COLUMN_FAMILY = "HIT";
         public const string ROW_KEY = "ROWKEY";
         public const string DMAC = "dmac";
@@ -30,7 +33,8 @@ namespace analyzeLogWorkRole.Model
         public const string DAY_ID = "day_id";
         public const string INDB_DATETIME = "INDB_DATETIME";
         public const string VERSION = "version";
-        private readonly int BATHCH = 1000;
+        public const string GROUPID = "groupId";
+        private readonly int BATHCH = 10000;
 
         private ConcurrentQueue<string> dwFileQueue = new ConcurrentQueue<string>();
         public const string USER_AGENT = "userAgent";
@@ -116,7 +120,7 @@ namespace analyzeLogWorkRole.Model
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + CLIENT_OS.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(CLIENT_OS,"").AsString) });
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + MOBILE_BRAND.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(MOBILE_BRAND,"").AsString) });
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + CLIENT_BROWSER.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(CLIENT_BROWSER,"").AsString) });
-             
+                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + GROUPID.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(GROUPID,"").AsString + "") });
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + INDB_DATETIME.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(INDB_DATETIME).AsInt64 + "") });
             }
             catch (Exception e)
@@ -167,8 +171,9 @@ namespace analyzeLogWorkRole.Model
                 data.Add(DAY_ID, day_id);
                 data.Add(INDB_DATETIME, long.Parse(hostdate.ToString("yyyyMMddHHmmss")));
                 string mac = data.GetValue("mac").AsString;
-                string id = dmac + StringUtil.FormatMacString(mac) + dateStr.Replace("-", "").Replace(" ", "").Replace(":", "");
-                data.Add(ConvertUtil.Unique_Key, id);
+                //   string id = dmac + StringUtil.FormatMacString(mac) + dateStr.Replace("-", "").Replace(" ", "").Replace(":", "");
+                //      data.Add(ConvertUtil.Unique_Key, id);
+                data.Add(ConvertUtil.Unique_Key, rowkey);
                 if (data.Contains(USER_AGENT))
                 {
                     string str = data.GetValue(USER_AGENT).AsString;
@@ -205,7 +210,8 @@ namespace analyzeLogWorkRole.Model
                                           .Append(data.GetValue(CLIENT_OS, "")).Append("\t")
                                           .Append(data.GetValue(MOBILE_BRAND, "")).Append("\t")
                                           .Append(data.GetValue(CLIENT_BROWSER, "")).Append("\t")
-                                          .Append(data.GetValue(VERSION, "")).AppendLine();
+                                          .Append(data.GetValue(VERSION, "")).Append("\t")
+                                          .Append(data.GetValue(GROUPID, "")).AppendLine();
                                           
         }
 
@@ -243,6 +249,59 @@ namespace analyzeLogWorkRole.Model
             Interlocked.Add(ref RCnt, cnt1);
         }
 
+        public void SetDataRow(System.Data.DataTable dt,string[] hit)
+        {
+            try
+            {
+                dt.Rows.Add(new object[] {
+                                   hit[0],
+                                   hit[1],
+                                   hit[2],
+                                   hit[3],
+                                   hit[4],
+                                   hit[5],
+                                   hit[6],
+                                   !DataExtUtil.IsInt(hit[7])?(object)null:Convert.ToInt32(hit[7]),
+                                   !DataExtUtil.IsInt(hit[8].Trim())?(object)null:Convert.ToInt64(hit[8].Trim()),
+                                   Convert.ToInt32(hit[9]), //day_id
+                                   Convert.ToInt64(hit[10]), Convert.ToInt64(hit[11]),
+                                   hit[12],hit[13],hit[14],hit[15],hit[16]
+                    });
+           /*
+                Console.WriteLine(DataExtUtil.IsInt(hit[8].Trim()));
+                Console.WriteLine("|"+hit[8]+"|");
+      
 
+                Console.WriteLine(hit[8].Trim());
+                Console.WriteLine("l="+hit[8].Length);
+                if (hit[8].Length > 0) { Console.ReadKey(); }
+                */
+            }
+          
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message+"\n"+e.StackTrace);
+                Console.WriteLine("hit");
+                for(int i=0; i<hit.Length; i++) {
+                    Console.WriteLine(i+" "+hit[i]);
+                }
+                Console.ReadKey();
+                return;
+            }
+        }
+
+        public void SetDataTableColumnsFromDB(System.Data.DataTable dt, System.Data.SqlClient.SqlConnection conn,string tabName)
+        {
+            SqlCommand sqlCmd = conn.CreateCommand();
+            sqlCmd.CommandText = @"SELECT top 0 [dmac],[mac],[ip],[time],[hitId],[refhitId],[uid],[posidx],[pagetime],[day_id],[indb_datetime],[indw_datetime], [client_os], 
+            [mobile_brand],[client_browser], [version], [groupid] FROM " + tabName;
+            dt.Load(sqlCmd.ExecuteReader());
+        }
+
+      
+        public string getDwTable()
+        {
+            return DW_TABLE;
+        }
     }
 }
