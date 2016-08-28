@@ -415,7 +415,7 @@ namespace testClouder28
                     {
                         hitModel.SetDataRow(dt, line.Split('\t'));
                         count++;
-                        if (count %step == 0) {
+                        if (count %100000 == 0) {
                             Console.WriteLine(DateTime.Now+" "+count);
                         }
                         if (count == step)
