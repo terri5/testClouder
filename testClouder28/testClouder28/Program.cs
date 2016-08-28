@@ -58,9 +58,16 @@ namespace testClouder28
         public static System.Collections.Generic.HashSet<string> file2Handle = new System.Collections.Generic.HashSet<string>();
 
         public static string date2Handle = "20160826";
-        public const int step = 100000;
+        public const int step = 1000000;
+        public const long G = 1024 * 1024 * 1024;
+        public const long MAX_CACHE= 20 * G;
+        public static long current_mem_que_size = 0;
 
-        public const int AnlyzeThreadCnt = 64;//总解析线程数
+        private static Object que_size_lock = new Object();
+        
+
+
+        public const int AnlyzeThreadCnt = 48;//总解析线程数
         public const int Write2HbaseThreadCnt = 10;//总写hbase线程数
 
         private static StreamWriter uv2f = null;
@@ -72,6 +79,7 @@ namespace testClouder28
         public static HashSet<string> downloadDir = new HashSet<string>();
 
         public static string driver = "f:";
+        public static ConcurrentQueue<Stream> memQueue = new ConcurrentQueue<Stream>();
         /**
         * 整理后的文件目录
         */
@@ -95,6 +103,7 @@ namespace testClouder28
             hit2f = new StreamWriter(new FileStream(dataDir + "\\hit.txt", FileMode.Append), Encoding.GetEncoding("gb2312"));
             pv22f = new StreamWriter(new FileStream(dataDir + "\\proxy_pv.txt", FileMode.Append), Encoding.GetEncoding("gb2312"));
         }
+    
         private static void initLogFolders() {
 
             if (!Directory.Exists(correct_dir)){
@@ -163,8 +172,8 @@ namespace testClouder28
 
 
                 // testHbaseWrite(20160817+"");
-                //  readFile2Dw(date2Handle);
-                   anlylog();
+                  readFile2Dw(date2Handle);
+                //   anlylog();
                // anlylogFromBlob();
 
 
@@ -406,7 +415,7 @@ namespace testClouder28
                     {
                         hitModel.SetDataRow(dt, line.Split('\t'));
                         count++;
-                        if (count %10000 == 0) {
+                        if (count %step == 0) {
                             Console.WriteLine(DateTime.Now+" "+count);
                         }
                         if (count == step)
@@ -812,6 +821,92 @@ namespace testClouder28
 
         }
 
+        public static void mem_Enqueue()
+        {
+
+            String src_path = orgin_dir;
+
+            //第一种方法
+            var dirs = Directory.GetDirectories(src_path);
+            int cnt = 0;
+
+            foreach (var dir in dirs)
+            {
+                cnt++;
+                Console.WriteLine("已处理{0}个目录，正在处理目录{1}", cnt, dir);
+                var files = Directory.GetFiles(dir);
+
+                Parallel.ForEach(files, (file) =>
+                {
+                    if (!IsValidTar(file)) return;
+
+                    string outDir = "";
+                    string fname = file.Substring(file.LastIndexOf("\\") + 1);
+                    string fdir = fname.Substring(0, fname.Length - 7);
+
+                    if (fdir.StartsWith("-")) fdir = "_" + dir.Substring(dir.LastIndexOf("\\") + 1).ToUpper() + fdir;
+                    if (fdir.StartsWith("sys")) fdir = fdir.Substring(4);  //sys-58-69-6C-03-C7-D6-16-06-14-10-00-32.tar.gz
+
+                    FileStream fs = null;
+                    GZipInputStream gzStream = null;
+                    TarInputStream tarStream = null;
+                    
+                    string outfile = null;
+                    try
+                    {
+                        fs = new FileStream(file, FileMode.Open);
+                        gzStream = new GZipInputStream(fs);
+                        tarStream = new TarInputStream(gzStream);
+
+                        List<Stream> outers = new List<Stream>();
+                        TarEntry entry = tarStream.GetNextEntry();
+
+                        while (entry != null)
+                        {
+                            Stream streamOut = new MemoryStream();
+
+                            string fileName = entry.Name.Substring(entry.Name.LastIndexOf("/") + 1);
+                            outfile = outDir + "\\" + fileName;
+                            //  Console.WriteLine(outfile);
+                            //  Console.WriteLine(fileName);
+
+                            if (!file2Handle.Contains(fileName))
+                            {
+                                entry = tarStream.GetNextEntry();
+                                continue;
+                            }
+                           
+                            tarStream.CopyEntryContents(streamOut);
+                            entry = tarStream.GetNextEntry();
+                            memQueue.Enqueue(streamOut);
+                            if (current_mem_que_size < MAX_CACHE)
+                            {
+                                Interlocked.Add(ref current_mem_que_size, streamOut.Length);
+                            }
+                            while (current_mem_que_size >= MAX_CACHE) {
+                                Thread.Sleep(1000);
+                            }
+                              
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.Error.WriteLine(outfile + "\n" + e.Message + "\n" + e.StackTrace);
+                        WriteLog(e);
+                    }
+                    finally
+                    {
+                        if (fs != null) fs.Close();
+                    }
+
+
+                });
+            }
+
+
+        }
+
+
         public static void move2NormalParallelAndEnqueue()
         {
 
@@ -1088,7 +1183,7 @@ namespace testClouder28
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
 
             // Retrieve reference to a previously created container.
-            CloudBlobContainer container = blobClient.GetContainerReference("20160826");
+            CloudBlobContainer container = blobClient.GetContainerReference("20160827");
 
             // Loop over items within the container and output the length and URI.
             List<Task<bool>> tasks = new List<Task<bool>>();
@@ -1104,7 +1199,7 @@ namespace testClouder28
                         {
 
                             // Task<bool> t = downloadSpecifyBlob(blob, @"e:\blob\20160826\" + blob.Name.Substring(blob.Name.IndexOf("/") + 1));
-                            string path = @"e:" + blob.Uri.ToString().Substring(blob.Uri.ToString().IndexOf("/20160826") + 5);
+                            string path = @"e:" + blob.Uri.ToString().Substring(blob.Uri.ToString().IndexOf("/20160827") + 5);
                             if (!Directory.Exists(path.Substring(0, path.LastIndexOf("/"))))//如果目录不存在，则创建
                             {
                                 Console.WriteLine("path=" + path);
