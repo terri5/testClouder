@@ -944,7 +944,7 @@ namespace testClouder28
                         {
                             var flogs = Directory.GetFiles(path);
                             EnqueueByDirAndFiles(fdir, flogs);
-                            return; //如果已经存在，则认为已解压
+                            return; //如果已经存在，则认为已解压，目前这样，每次只能处理同一种类型的文件
                         }
 
                     }
