@@ -18,7 +18,7 @@ namespace analyzeLogWorkRole.Model
     class Hit : IHBaseModel
     {
         public const string HBASE_TABLE = "DEV_HIT_BASE";
-        public const string DW_TABLE = "etl.device_log_hit_base_20160826";
+        public const string DW_TABLE = "etl.device_log_hit_base_20160827";
         public const string COLUMN_FAMILY = "HIT";
         public const string ROW_KEY = "ROWKEY";
         public const string DMAC = "dmac";

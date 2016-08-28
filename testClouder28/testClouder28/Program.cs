@@ -67,7 +67,7 @@ namespace testClouder28
         
 
 
-        public const int AnlyzeThreadCnt = 48;//总解析线程数
+        public const int AnlyzeThreadCnt = 24;//总解析线程数
         public const int Write2HbaseThreadCnt = 10;//总写hbase线程数
 
         private static StreamWriter uv2f = null;
@@ -172,8 +172,8 @@ namespace testClouder28
 
 
                 // testHbaseWrite(20160817+"");
-                  readFile2Dw(date2Handle);
-                //   anlylog();
+                //  readFile2Dw(date2Handle);
+                   anlylog();
                // anlylogFromBlob();
 
 
