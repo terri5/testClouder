@@ -24,7 +24,7 @@ namespace AlalyzeLog.DBTools
                     bulk.BatchSize = step;
                     bulk.BulkCopyTimeout = 6000;
                     bulk.WriteToServer(dt);
-                    Console.WriteLine(DateTime.Now+" SqlBulkCopy WriteToServer {0} rows", dt.Rows.Count);
+                    Console.WriteLine("{0} {1}  SqlBulkCopy WriteToServer {0} rows",DateTime.Now,tabName,dt.Rows.Count);
                     dt.Rows.Clear();
                 }
                 catch (Exception ex)
