@@ -939,12 +939,8 @@ namespace testClouder28
 
                     try
                     {
-                        string path = outDir;
-                        if (!Directory.Exists(path))
-                        {//判断是否存在
-                            Directory.CreateDirectory(path);//创建新路径
-                        }
-                        else
+                        string path = outDir;                   
+                        if(Directory.Exists(path))
                         {
                             var flogs = Directory.GetFiles(path);
                             EnqueueByDirAndFiles(fdir, flogs);
@@ -985,6 +981,11 @@ namespace testClouder28
                             {
                                 entry = tarStream.GetNextEntry();
                                 continue;
+                            }
+
+                            if (!Directory.Exists(outDir))
+                            {//判断是否存在
+                                Directory.CreateDirectory(outDir);//创建新路径
                             }
 
                             if (File.Exists(outfile))
