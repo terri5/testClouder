@@ -57,8 +57,8 @@ namespace testClouder28
 
         public static System.Collections.Generic.HashSet<string> file2Handle = new System.Collections.Generic.HashSet<string>();
 
-        public static string date2Handle = "20160826";
-        public const int step = 1000000;
+        public static string date2Handle = "20160828";
+        public const int step = 100000;
         public const long G = 1024 * 1024 * 1024;
         public const long MAX_CACHE= 20 * G;
         public static long current_mem_que_size = 0;
@@ -67,8 +67,8 @@ namespace testClouder28
         
 
 
-        public const int AnlyzeThreadCnt = 24;//总解析线程数
-        public const int Write2HbaseThreadCnt = 10;//总写hbase线程数
+        public const int AnlyzeThreadCnt = 16;//总解析线程数
+        public const int Write2HbaseThreadCnt = 32;//总写hbase线程数
 
         private static StreamWriter uv2f = null;
         private static StreamWriter pv2f = null;
@@ -78,7 +78,7 @@ namespace testClouder28
         public static FileStream log_err = null;
         public static HashSet<string> downloadDir = new HashSet<string>();
 
-        public static string driver = "f:";
+        public static string driver = "e:";
         public static ConcurrentQueue<Stream> memQueue = new ConcurrentQueue<Stream>();
         /**
         * 整理后的文件目录
@@ -172,9 +172,9 @@ namespace testClouder28
 
 
                 // testHbaseWrite(20160817+"");
-                //  readFile2Dw(date2Handle);
-                   anlylog();
-               // anlylogFromBlob();
+                  readFile2Dw(date2Handle);
+               //    anlylog();
+                //anlylogFromBlob();
 
 
 
@@ -374,7 +374,7 @@ namespace testClouder28
                 wrtite2HbaseTasks.Add(task);
             }
 
-            readFile(@"e:\test-data\"+day_id.Substring(4)+"\\PV.txt", "PV");
+            readFile(@"e:\\test-data\\20160817\\PV.txt", "PV");
 
             addCompleted = true;
 
@@ -403,6 +403,7 @@ namespace testClouder28
             try
             {
                 FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.Read);
+                Console.WriteLine(Hit.DW_TABLE);
                 reader = new StreamReader(fs);
                 using (SqlConnection conn = new SqlConnection(cnstr))
                 {

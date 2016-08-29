@@ -89,7 +89,7 @@ namespace testClouder28
                 outer.OutStream.Flush();
                 watch.Stop();
                 Console.WriteLine("当前时间：{0} 写入文件耗时{1}s 总写入记录数{2},写入日志类型{3}",
-                    DateTime.Now, watch.ElapsedMilliseconds / 1000,i+sb.Length, outer.LogType);
+                    DateTime.Now, watch.ElapsedMilliseconds / 1000,i, outer.LogType);
                 sb.Clear();
 
             }
