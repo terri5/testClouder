@@ -294,7 +294,7 @@ namespace AlalyzeLog.Worker.Model
             Interlocked.Add(ref RCnt,cnt1);
         }
 
-        public void SetDataRow(DataTable dt, string[] p)
+        public void SetDataRow(DataTable dt, BsonDocument p)
         {
             throw new NotImplementedException();
         }

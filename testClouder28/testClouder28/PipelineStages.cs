@@ -108,13 +108,12 @@ namespace testClouder28
                 outer.Model.SetDataTableColumnsFromDB(dt, conn,outer.Model.getDwTable());
                 long count = 0;
 
-                while (!Program.anlyzeCompleted || outer.Queue.Count > 0)
+                while (!Program.anlyzeCompleted || outer.Hbasequeue.Count > 0)
                 {
-                    string tmp = null;
-                    Boolean geted = outer.Queue.TryDequeue(out tmp);
+                    BsonDocument tmp = null;
+                    Boolean geted = outer.Hbasequeue.TryDequeue(out tmp);
                     if (geted) {
-                        string line = tmp.ToString();
-                        outer.Model.SetDataRow(dt, line.Substring(0, line.Length - 2).Split('\t'));
+                        outer.Model.SetDataRow(dt,tmp);
                         count++;
                         /**
                         if (count % 100000 == 0)
@@ -127,10 +126,10 @@ namespace testClouder28
                             DataExtUtil.BatchCopyDataToSqlDw(Program.step, dt, conn, outer.Model.getDwTable());
                             Console.WriteLine("{0} {1} 线程{2}写入Dw总数 {3}",DateTime.Now,outer.Model.GetColumnFamily(),Thread.CurrentThread.ManagedThreadId,count);
                         }
-                    } else if (outer.Queue.Count == 0)
+                    } else if (outer.Hbasequeue.Count == 0)
                     {
-                        Console.WriteLine("写入Dw线程{0}睡眠{1}秒", Thread.CurrentThread.ManagedThreadId, 5);
-                        Thread.Sleep(1000 * 5);
+                        Console.WriteLine("写入Dw线程{0}睡眠{1}秒", Thread.CurrentThread.ManagedThreadId, 3);
+                        Thread.Sleep(1000 * 3);
                     }
                 }
                 if (dt.Rows.Count > 0)

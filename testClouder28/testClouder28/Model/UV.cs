@@ -199,7 +199,7 @@ namespace AlalyzeLog.Worker.Model
             throw new NotImplementedException();
         }
 
-        public void SetDataRow(DataTable dt, string[] data)
+        public void SetDataRow(DataTable dt, BsonDocument data)
         {
             throw new NotImplementedException();
         }

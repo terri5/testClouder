@@ -25,7 +25,7 @@ namespace analyzeLogWorkRole.Model
         void AddCnt(int cnt);
         void AddRCnt(int cnt);
         void SetDataTableColumnsFromDB(DataTable dt, SqlConnection conn, string tabName);
-        void SetDataRow(DataTable dt,string[] data);
+        void SetDataRow(DataTable dt,BsonDocument data);
         string getDwTable();
     }
 

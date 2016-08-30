@@ -254,6 +254,11 @@ namespace analyzeLogWorkRole.Model
 
         public void SetDataRow(System.Data.DataTable dt,string[] hit)
         {
+           
+            if (hit[0].Contains('"')) { 
+                SetDataRow(dt, BsonDocument.Parse(hit[0]));
+                return ;
+            } 
             try
             {
                 dt.Rows.Add(new object[] {
@@ -286,19 +291,53 @@ namespace analyzeLogWorkRole.Model
             {
                 Console.WriteLine(e.Message+"\n"+e.StackTrace);
                 Console.WriteLine("hit");
-                for(int i=0; i<hit.Length; i++) {
-                    Console.WriteLine(i+" "+hit[i]);
+                for (int i = 0; i < hit.Length; i++)
+                {
+                    Console.Write(i + "=" + hit[i] + "\t");
                 }
-                Console.ReadKey();
+                Console.WriteLine();
                 return;
             }
         }
+
+        public  void SetDataRow(System.Data.DataTable dt, BsonDocument data)
+        {
+
+            try
+            {
+                dt.Rows.Add(new object[] {data.GetValue(DMAC, "").AsString,
+                                   data.GetValue(MAC, "").AsString,
+                                   data.GetValue(IP, "").AsString,
+                                   data.GetValue(TIME, "").ToString(),
+                                   data.GetValue("hitID", "").AsString,
+                                   data.GetValue("refHitID", "").AsString,
+                                   data.GetValue("uID", "").AsString,
+                                   !DataExtUtil.IsInt(data.GetValue("posIdx", "").ToString())?(object)null:Convert.ToInt32(data.GetValue("posIdx", "").ToString()),
+                                   !DataExtUtil.IsInt(data.GetValue("pageTime", "").ToString().Trim())?(object)null:Convert.ToInt64(data.GetValue("pageTime", "").ToString().Trim()),
+                                   Convert.ToInt32(data.GetValue("day_id", "").ToString()), //day_id
+                                   Convert.ToInt64(data.GetValue(INDB_DATETIME, "").ToString()), Convert.ToInt64(DateTime.Now.ToString("yyyyMMddHHmmss")),
+                                   data.GetValue(CLIENT_OS, "").AsString,data.GetValue(MOBILE_BRAND, "").AsString,
+                                   data.GetValue(CLIENT_BROWSER, "").AsString ,
+                                   data.GetValue(VERSION, "").AsString,
+                                   data.GetValue(GROUPID, "").ToString(),
+                                   !DataExtUtil.IsInt(data.GetValue(PAGETIME2, "").ToString())?(object)null:Convert.ToInt32(data.GetValue(PAGETIME2, "").ToString())
+                    });
+            }
+
+            catch (Exception e)
+            {
+                Trace.TraceError(e.Message + "\n" + e.StackTrace);
+
+                return;
+            }
+        }
+
 
         public void SetDataTableColumnsFromDB(System.Data.DataTable dt, System.Data.SqlClient.SqlConnection conn,string tabName)
         {
             SqlCommand sqlCmd = conn.CreateCommand();
             sqlCmd.CommandText = @"SELECT top 0 [dmac],[mac],[ip],[time],[hitId],[refhitId],[uid],[posidx],[pagetime],[day_id],[indb_datetime],[indw_datetime], [client_os], 
-            [mobile_brand],[client_browser], [version], [groupid] FROM " + tabName;
+            [mobile_brand],[client_browser], [version], [groupid],[pagetime2] FROM " + tabName;
             dt.Load(sqlCmd.ExecuteReader());
         }
 

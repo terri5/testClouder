@@ -179,7 +179,7 @@ namespace testClouder28
 
 
                 // testHbaseWrite(20160817+"");
-               //   readFile2Dw(date2Handle);
+                 // readFile2Dw(date2Handle);
                 
                // anlylogFromBlob(date2Handle);
                 anlylog();
@@ -296,17 +296,18 @@ namespace testClouder28
                             */
 
                 OutObj tHitObj = new OutObj();
-                tHitObj.Queue = hitDwFileQueue;
+                //tHitObj.Queue = hitDwFileQueue;
+                tHitObj.Hbasequeue = hitDwQueue;
                 tHitObj.OutStream = hit2f;
                 tHitObj.Model = hitModel;
                 tHitObj.Batch = 100000;
-         
+                /*
                 Thread thHit = new Thread(PipelineStages.Write2DwFileThread);
                 thHit.Start(tHitObj);
-                /*
-         Thread thHit = new Thread(PipelineStages.Write2Dw);
-         thHit.Start(tHitObj);
-         */
+                */
+                Thread thHit = new Thread(PipelineStages.Write2Dw);
+                thHit.Start(tHitObj);
+         
 
 
                 /*
@@ -318,14 +319,14 @@ namespace testClouder28
                 */
 
                 //第一种方法
-                /*
+                
                  var dirs = Directory.GetDirectories(correct_dir);
                  LoadDirParallel(dirs);
-                 */
+                 
 
                 //方法2
 
-                move2NormalParallelAndEnqueue();
+              //  move2NormalParallelAndEnqueue();
                 
                 addCompleted = true;
 
@@ -730,11 +731,11 @@ namespace testClouder28
             StringBuilder sb = new StringBuilder();
             string line = null;
             HashSet<string> ids = new HashSet<string>();
-            ConcurrentQueue<string> queue = null;
+           // ConcurrentQueue<string> queue = null;
             int rcnt = 0;
 
-            queue = model.GetDwFileQueue();
-       
+            //   queue = model.GetDwFileQueue();
+          
             try
             {
                 while ((line = reader.ReadLine()) != null)
@@ -757,31 +758,17 @@ namespace testClouder28
                                 if (pos > 0)
                                 {
                                     //                                    Trace.TraceError("解析hitID");
-                                    string hit = extractHitFromUrl(url.Substring(pos), dmac, doc);
+                                    BsonDocument hit = extractHitFromUrl(url.Substring(pos), dmac, doc);
 
                                     if (hit != null)
                                     {
-                                        hitDwFileQueue.Enqueue(hit); 
+                                        hitDwQueue.Enqueue(hit); 
                                     }
                                 }
                                 continue;
                             }
 
-                            try
-                            {
-                                model.BsonToDw(doc, sb);
-                                queue.Enqueue(sb.ToString());
-                                sb.Clear();
-                            }
-                            catch (Exception e)
-                            {
-                                //                          Console.WriteLine(e.Message);
-                                //                          Console.WriteLine(e.StackTrace);
-                                //                          Console.WriteLine(line);
-                                //                          Console.WriteLine(doc);
-                                WriteLog(e);
-
-                            }
+                            hitDwQueue.Enqueue(doc);
 
                         }
 
@@ -792,7 +779,7 @@ namespace testClouder28
                 model.AddRCnt(rcnt);
                 ids.Clear();
 
-                while (queue.Count > 4 * 100000)
+                while (hitDwQueue.Count > 4 * 100000)
                 {
                     Console.WriteLine("解析线程{0} 休眠{1}秒钟", Thread.CurrentThread.ManagedThreadId, 5);
                     Thread.Sleep(1000 * 5);
@@ -807,7 +794,7 @@ namespace testClouder28
 
         }
 
-        private static string extractHitFromUrl(string url, string dmac, BsonDocument data)
+        private static BsonDocument extractHitFromUrl(string url, string dmac, BsonDocument data)
         {
             string[] str = url.Split('&');
             string json = "";
@@ -832,8 +819,8 @@ namespace testClouder28
             json += ",\"" + Hit.USER_AGENT + "\":\"" + data.GetValue(PV.CLIENT_AGENT, "").AsString.Trim() + "\"";
             json = "{" + json.Substring(1) + "}";
             //            Trace.TraceError(" hit json " + json);
-            return json;
-          //  return hitModel.LineToBson(json, dmac);
+           // return json;
+            return hitModel.LineToBson(json, dmac);
         }
         public static void handleLog4Dw(string dmac, StreamReader reader, string blobName, string fileName, IHBaseModel model)
         {
