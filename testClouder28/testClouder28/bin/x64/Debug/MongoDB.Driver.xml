@@ -3951,11 +3951,12 @@
             A fluent aggregate interface.
             </returns>
     </member>
-    <member name="M:MongoDB.Driver.IMongoCollectionExtensions.AsQueryable``1(MongoDB.Driver.IMongoCollection{``0})">
+    <member name="M:MongoDB.Driver.IMongoCollectionExtensions.AsQueryable``1(MongoDB.Driver.IMongoCollection{``0},MongoDB.Driver.AggregateOptions)">
       <summary>
             Creates a queryable source of documents.
             </summary>
       <param name="collection">The collection.</param>
+      <param name="aggregateOptions">The aggregate options</param>
       <typeparam name="TDocument">The type of the document.</typeparam>
       <returns>A queryable source of documents.</returns>
     </member>

@@ -203,14 +203,15 @@ namespace AlalyzeLog.Worker.Model
                     }
 
                 }
+                
                 if (strs.Length > 2)
                 {
                     obj.Add("clientAgent", strs[2]);
-
+                    
                     obj.Add(CLIENT_OS, Regex.IsMatch(strs[2], os_str_regex) ? mobile_os_dict[Regex.Match(strs[2], os_str_regex).Value] : "");
                     obj.Add(MOBILE_BRAND, Regex.IsMatch(strs[2], brand_str_regex) ? mobile_brand_dict[Regex.Match(strs[2], brand_str_regex).Value] : "");
                     obj.Add(CLIENT_BROWSER, Regex.IsMatch(strs[2], browser_str_regex) ? mobile_browser_dict[Regex.Match(strs[2], browser_str_regex).Value] : "");
-
+                  
                 }
 
                 //存在url的

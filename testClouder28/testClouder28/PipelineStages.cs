@@ -191,6 +191,7 @@ namespace testClouder28
             while (!Program.allCompleted)
             {
                 Console.WriteLine("当前待处理日志文件数量:{0} 当前时间：{1},已用时{2}小时{3}分钟" , queue.Count,DateTime.Now.ToString(),(m_cnt)/60,(m_cnt)%60);
+                Console.WriteLine("当前待写入记录数{0},pv:{1},pv2:{2},uv:{3} hit:{4}", (Program.pvDwFileQueue.Count + Program.pv2DwFileQueue.Count + Program.uvDwFileQueue.Count + Program.hitDwFileQueue.Count), Program.pvDwFileQueue.Count, Program.pv2DwFileQueue.Count, Program.uvDwFileQueue.Count, Program.hitDwFileQueue.Count);
                 lock (syncRootLog) {
                     Program.log.WriteLine("hbase队列数据量:{0} 已写入 hbase数量{1} 当前时间 {2},已用时{3}小时{4}分钟", Program.pvHbaseQueue.Count, r_cnt, DateTime.Now.ToString(), (m_cnt) / 60, (m_cnt) % 60);
                     Program.log.WriteLine("当前待处理日志文件数量:{0} 当前时间：{1},已用时{2}小时{3}分钟", queue.Count, DateTime.Now.ToString(), (m_cnt) / 60, (m_cnt) % 60);

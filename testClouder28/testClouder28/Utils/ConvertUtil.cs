@@ -63,23 +63,7 @@ namespace AlalyzeLog.DBTools
 
      
 
-        /// <summary>
-        /// 转换mongo的数据库名和集合名称
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="date"></param>
-        /// <returns></returns>
-        public static string ConvertMongoName(string key, DateTime date)
-        {
-            string reg = "\\[[A-Za-z]+\\]";
-            if (Regex.IsMatch(key, reg))
-            {
-                string source = Regex.Match(key, reg).Value;
-                key = key.Replace(source, date.ToString(Regex.Match(source, "[A-Za-z]+").Value));
-            }
-            return key;
-        }
-
+       
         public static String reverseStr(string str) {
             if (str == null) return null;
             return new string(str.ToArray().Reverse().ToArray());

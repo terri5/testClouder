@@ -18,7 +18,7 @@ namespace analyzeLogWorkRole.Model
     class Hit : IHBaseModel
     {
         public const string HBASE_TABLE = "DEV_HIT_BASE";
-        public const string DW_TABLE = "etl.device_log_hit_base_20160828";
+        public const string DW_TABLE = "etl.device_log_hit_base_20160829";
         public const string COLUMN_FAMILY = "HIT";
         public const string ROW_KEY = "ROWKEY";
         public const string DMAC = "dmac";
@@ -30,6 +30,7 @@ namespace analyzeLogWorkRole.Model
         public const string UID = "uID";
         public const string POSIDX = "posIdx";
         public const string PAGETIME = "pageTime";
+        public const string PAGETIME2 = "pageTime2";
         public const string DAY_ID = "day_id";
         public const string INDB_DATETIME = "INDB_DATETIME";
         public const string VERSION = "version";
@@ -115,6 +116,7 @@ namespace analyzeLogWorkRole.Model
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + UID.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(UID, "").AsString) });
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + POSIDX.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(POSIDX, "").AsString) });
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + PAGETIME.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(PAGETIME, "").AsString) });
+                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + PAGETIME2.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(PAGETIME2, "").AsString) });
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + VERSION.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(VERSION, "").AsString) });
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + DAY_ID.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(DAY_ID).AsInt32 + "") });
                 cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + CLIENT_OS.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(CLIENT_OS,"").AsString) });
@@ -211,7 +213,8 @@ namespace analyzeLogWorkRole.Model
                                           .Append(data.GetValue(MOBILE_BRAND, "")).Append("\t")
                                           .Append(data.GetValue(CLIENT_BROWSER, "")).Append("\t")
                                           .Append(data.GetValue(VERSION, "")).Append("\t")
-                                          .Append(data.GetValue(GROUPID, "")).AppendLine();
+                                          .Append(data.GetValue(GROUPID, "")).Append("\t")
+                                          .Append(data.GetValue(PAGETIME2, "")).AppendLine();
                                           
         }
 
@@ -265,7 +268,8 @@ namespace analyzeLogWorkRole.Model
                                    !DataExtUtil.IsInt(hit[8].Trim())?(object)null:Convert.ToInt64(hit[8].Trim()),
                                    Convert.ToInt32(hit[9]), //day_id
                                    Convert.ToInt64(hit[10]), Convert.ToInt64(hit[11]),
-                                   hit[12],hit[13],hit[14],hit[15],hit[16]
+                                   hit[12],hit[13],hit[14],hit[15],hit[16],
+                                   !DataExtUtil.IsInt(hit[17])?(object)null:Convert.ToInt32(hit[17])
                     });
            /*
                 Console.WriteLine(DataExtUtil.IsInt(hit[8].Trim()));

@@ -57,7 +57,7 @@ namespace testClouder28
 
         public static System.Collections.Generic.HashSet<string> file2Handle = new System.Collections.Generic.HashSet<string>();
 
-        public static string date2Handle = "20160828";
+        public static string date2Handle = "20160829";
         public const int step = 100000;
         public const long G = 1024 * 1024 * 1024;
         public const long MAX_CACHE= 20 * G;
@@ -67,7 +67,7 @@ namespace testClouder28
         
 
 
-        public const int AnlyzeThreadCnt = 16;//总解析线程数
+        public const int AnlyzeThreadCnt = 32;//总解析线程数
         public const int Write2HbaseThreadCnt = 32;//总写hbase线程数
 
         private static StreamWriter uv2f = null;
@@ -78,12 +78,13 @@ namespace testClouder28
         public static FileStream log_err = null;
         public static HashSet<string> downloadDir = new HashSet<string>();
 
-        public static string driver = "e:";
+        public static string driver = "G:";
         public static ConcurrentQueue<Stream> memQueue = new ConcurrentQueue<Stream>();
         /**
         * 整理后的文件目录
         */
         public static string correct_dir = driver + @"\cor" + date2Handle.Substring(4);
+ 
         /**
          * blob文件目录
          */
@@ -91,6 +92,7 @@ namespace testClouder28
 
 
         private static string dataDirRoot = driver + @"\test-data\";
+        public static HashSet<string> hit_dmac = new HashSet<string>();
         
         private static void initFolders()
         {
@@ -105,6 +107,11 @@ namespace testClouder28
         }
     
         private static void initLogFolders() {
+            if (!Directory.Exists(orgin_dir ))
+            {
+                Console.WriteLine(orgin_dir);
+                Directory.CreateDirectory(orgin_dir);//创建新路径
+            }
 
             if (!Directory.Exists(correct_dir)){
                 Console.WriteLine(correct_dir);
@@ -153,7 +160,7 @@ namespace testClouder28
         public static Task taskPv = null;
         public static Task taskUv = null;
         public static Task taskHit = null;
-
+  
 
         static void Main(string[] args)
         {
@@ -172,9 +179,10 @@ namespace testClouder28
 
 
                 // testHbaseWrite(20160817+"");
-                  readFile2Dw(date2Handle);
-               //    anlylog();
-                //anlylogFromBlob();
+               //   readFile2Dw(date2Handle);
+                
+               // anlylogFromBlob(date2Handle);
+                anlylog();
 
 
 
@@ -213,8 +221,8 @@ namespace testClouder28
 
 
         }
-        public static void anlylogFromBlob() {
-              DownloadBlob();
+        public static void anlylogFromBlob(string day_id) {
+              DownloadBlob(day_id);
             //listBlob();
 
         }
@@ -225,9 +233,9 @@ namespace testClouder28
 
 //                       file2Handle.Add(LogFileInfo.UV_FILE);  //uv ok!
 
-//                file2Handle.Add(LogFileInfo.PV1_FILE);
+                file2Handle.Add(LogFileInfo.PV1_FILE);
 //                file2Handle.Add(LogFileInfo.PROXY_PV_FILE);
-//                file2Handle.Add(LogFileInfo.PV2_FILE);   //pv
+                file2Handle.Add(LogFileInfo.PV2_FILE);   //pv
                 initFolders();
                 string fileStrs = "";
                 foreach (string f in file2Handle) fileStrs += ":" + f;
@@ -241,7 +249,7 @@ namespace testClouder28
                 Console.WriteLine("解压日期：{0}完成", date2Handle);
                 Console.ReadKey();
                 return;
-                **/    
+                **/
 
 
                 List<Thread> analyzedThreads = new List<Thread>();
@@ -257,13 +265,15 @@ namespace testClouder28
                 }
 
                 /*
-                OutObj tPvObj = new OutObj();
-                tPvObj.Queue = pvDwFileQueue;
-                tPvObj.OutStream = pv2f;
-                tPvObj.Batch = 100000;
-                Thread thPvW = new Thread(PipelineStages.Write2DwFileThread);
-                thPvW.Start(tPvObj);
-                */
+            OutObj tPvObj = new OutObj();
+            tPvObj.Queue = pvDwFileQueue;
+            tPvObj.OutStream = pv2f;
+            tPvObj.Batch = 100000;
+
+            Thread thPvW = new Thread(PipelineStages.Write2DwFileThread);
+            thPvW.Start(tPvObj);
+            */
+
 
                 /*
                OutObj tPv2Obj = new OutObj();
@@ -274,27 +284,29 @@ namespace testClouder28
                Thread thPv2 = new Thread(PipelineStages.Write2DwFileThread);
                thPv2.Start(tPv2Obj);
                */
-               /*
+                /*
 
-                           OutObj tUvObj = new OutObj();
-                           tUvObj.Queue = uvDwFileQueue;
-                           tUvObj.OutStream = uv2f;
-                           tUvObj.Batch = 100000;
+                            OutObj tUvObj = new OutObj();
+                            tUvObj.Queue = uvDwFileQueue;
+                            tUvObj.OutStream = uv2f;
+                            tUvObj.Batch = 100000;
 
-                           Thread thUv = new Thread(PipelineStages.Write2DwFileThread);
-                           thUv.Start(tUvObj);
-                           */
-                  
+                            Thread thUv = new Thread(PipelineStages.Write2DwFileThread);
+                            thUv.Start(tUvObj);
+                            */
+
                 OutObj tHitObj = new OutObj();
                 tHitObj.Queue = hitDwFileQueue;
                 tHitObj.OutStream = hit2f;
                 tHitObj.Model = hitModel;
                 tHitObj.Batch = 100000;
-
+         
                 Thread thHit = new Thread(PipelineStages.Write2DwFileThread);
                 thHit.Start(tHitObj);
-               // Thread thHit = new Thread(PipelineStages.Write2Dw);
-              //  thHit.Start(tHitObj);
+                /*
+         Thread thHit = new Thread(PipelineStages.Write2Dw);
+         thHit.Start(tHitObj);
+         */
 
 
                 /*
@@ -307,7 +319,7 @@ namespace testClouder28
 
                 //第一种方法
                 /*
-                var dirs = Directory.GetDirectories(correct_dir);
+                 var dirs = Directory.GetDirectories(correct_dir);
                  LoadDirParallel(dirs);
                  */
 
@@ -552,6 +564,8 @@ namespace testClouder28
                                 {
                                     handlePvFileCnt++;
                                 }
+                                if (hit_dmac.Contains(t.Dmac))
+                                    continue;
                                 break;
                             case LogFileInfo.FILE_TYPE_PV2:
                                 model = pv2Model;
@@ -573,6 +587,7 @@ namespace testClouder28
                                 {
                                     handleHitFileCnt++;
                                 }
+                                hit_dmac.Add(t.Dmac);
                                 break;
                         }
 
@@ -615,8 +630,9 @@ namespace testClouder28
             try
             {
                 reader = new StreamReader(f.Fullname);
-      //              await  handleLog2Hbase(f.Dmac, reader,"","", model);
-                handleLog4Dw(f.Dmac, reader, "", "", model);
+                //              await  handleLog2Hbase(f.Dmac, reader,"","", model);
+                //          handleLog4Dw(f.Dmac, reader, "", "", model);
+                handleLog4WithTransformDw(f.Dmac, reader, "", "", model);
             }
             catch (Exception e)
             {
@@ -708,6 +724,117 @@ namespace testClouder28
 
         }
 
+        public static void handleLog4WithTransformDw(string dmac, StreamReader reader, string blobName, string fileName, IHBaseModel model)
+        {
+            List<BsonDocument> list = new List<BsonDocument>();
+            StringBuilder sb = new StringBuilder();
+            string line = null;
+            HashSet<string> ids = new HashSet<string>();
+            ConcurrentQueue<string> queue = null;
+            int rcnt = 0;
+
+            queue = model.GetDwFileQueue();
+       
+            try
+            {
+                while ((line = reader.ReadLine()) != null)
+                {
+                    if (model.GetColumnFamily() == "PV" && !line.Contains("hitID")) { continue; }
+                    BsonDocument doc = model.LineToBson(line, dmac);
+
+                    if (doc != null)
+                    {
+
+                        string id = doc.GetValue("_id").AsString;
+                        rcnt++;
+                        if (ids.Add(id))
+                        {
+
+                            if (model.GetColumnFamily() == "PV")
+                            {
+                                string url = doc.GetValue(PV.HTTP_URI).AsString;
+                                int pos = url.IndexOf("hitID");
+                                if (pos > 0)
+                                {
+                                    //                                    Trace.TraceError("解析hitID");
+                                    string hit = extractHitFromUrl(url.Substring(pos), dmac, doc);
+
+                                    if (hit != null)
+                                    {
+                                        hitDwFileQueue.Enqueue(hit); 
+                                    }
+                                }
+                                continue;
+                            }
+
+                            try
+                            {
+                                model.BsonToDw(doc, sb);
+                                queue.Enqueue(sb.ToString());
+                                sb.Clear();
+                            }
+                            catch (Exception e)
+                            {
+                                //                          Console.WriteLine(e.Message);
+                                //                          Console.WriteLine(e.StackTrace);
+                                //                          Console.WriteLine(line);
+                                //                          Console.WriteLine(doc);
+                                WriteLog(e);
+
+                            }
+
+                        }
+
+
+                    }
+                }
+                model.AddCnt(ids.Count);
+                model.AddRCnt(rcnt);
+                ids.Clear();
+
+                while (queue.Count > 4 * 100000)
+                {
+                    Console.WriteLine("解析线程{0} 休眠{1}秒钟", Thread.CurrentThread.ManagedThreadId, 5);
+                    Thread.Sleep(1000 * 5);
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
+                WriteLog(e);
+            }
+
+        }
+
+        private static string extractHitFromUrl(string url, string dmac, BsonDocument data)
+        {
+            string[] str = url.Split('&');
+            string json = "";
+            Boolean notime = true;
+            foreach (var tmp in str)
+            {
+                string[] item = tmp.Split('=');
+                if (item[0] == "t" || item[0] == "start_time")
+                {
+                    json += ",\"time\":" + item[1];
+                    notime = false;
+                }
+                else
+                {
+                    json += ",\"" + item[0] + "\":\"" + item[1] + "\"";
+                }
+            }
+            if (notime) return null;
+
+            if (!json.Contains("\"mac\":\"")) json += ",\"" + Hit.MAC + "\":\"" + data.GetValue(PV.MAC, "").AsString + "\"";
+            json += ",\"" + Hit.IP + "\":\"" + data.GetValue(PV.IP, "").AsString.Trim() + "\"";
+            json += ",\"" + Hit.USER_AGENT + "\":\"" + data.GetValue(PV.CLIENT_AGENT, "").AsString.Trim() + "\"";
+            json = "{" + json.Substring(1) + "}";
+            //            Trace.TraceError(" hit json " + json);
+            return json;
+          //  return hitModel.LineToBson(json, dmac);
+        }
         public static void handleLog4Dw(string dmac, StreamReader reader, string blobName, string fileName, IHBaseModel model)
         {
             List<BsonDocument> list = new List<BsonDocument>();
@@ -792,9 +919,8 @@ namespace testClouder28
                 {
                     dmac = dirName.Substring(0, 18).Replace("-", "");
                 }
-
-                foreach (var f in flogs)
-                {
+                 Array.Sort(flogs);
+                foreach (var f in flogs)                {
                     LogFileInfo t = new LogFileInfo();
                     t.Fname = f.Substring(f.LastIndexOf(@"\") + 1);
 
@@ -1175,7 +1301,7 @@ namespace testClouder28
 
         }
 
-        public static void DownloadBlob()
+        public static void DownloadBlob(string day_id)
         {
 
             // Retrieve storage account from connection string.
@@ -1185,7 +1311,7 @@ namespace testClouder28
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
 
             // Retrieve reference to a previously created container.
-            CloudBlobContainer container = blobClient.GetContainerReference("20160827");
+            CloudBlobContainer container = blobClient.GetContainerReference(day_id);
 
             // Loop over items within the container and output the length and URI.
             List<Task<bool>> tasks = new List<Task<bool>>();
@@ -1201,7 +1327,7 @@ namespace testClouder28
                         {
 
                             // Task<bool> t = downloadSpecifyBlob(blob, @"e:\blob\20160826\" + blob.Name.Substring(blob.Name.IndexOf("/") + 1));
-                            string path = @"e:" + blob.Uri.ToString().Substring(blob.Uri.ToString().IndexOf("/20160827") + 5);
+                            string path = driver + blob.Uri.ToString().Substring(blob.Uri.ToString().IndexOf("/"+ day_id) + 5);
                             if (!Directory.Exists(path.Substring(0, path.LastIndexOf("/"))))//如果目录不存在，则创建
                             {
                                 Console.WriteLine("path=" + path);

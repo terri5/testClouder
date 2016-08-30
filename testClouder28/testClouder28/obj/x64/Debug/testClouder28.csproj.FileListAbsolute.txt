@@ -72,4 +72,6 @@ C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\x64\Debug\zh-Hans\Sy
 C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\x64\Debug\zh-Hant\System.Spatial.resources.dll
 C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\obj\x64\Debug\testClouder28.exe
 C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\obj\x64\Debug\testClouder28.pdb
-C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\obj\x64\Debug\testClouder28.csprojResolveAssemblyReference.cache
+C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\x64\Debug\MongoDB.Driver.Legacy.dll
+C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\x64\Debug\MongoDB.Driver.Core.xml
+C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\x64\Debug\MongoDB.Driver.Legacy.xml
