@@ -57,7 +57,7 @@ namespace testClouder28
 
         public static System.Collections.Generic.HashSet<string> file2Handle = new System.Collections.Generic.HashSet<string>();
 
-        public static string date2Handle = "20160829";
+        public static string date2Handle = "20160830";
         public const int step = 100000;
         public const long G = 1024 * 1024 * 1024;
         public const long MAX_CACHE= 20 * G;
@@ -319,14 +319,14 @@ namespace testClouder28
                 */
 
                 //第一种方法
-                
+                /*
                  var dirs = Directory.GetDirectories(correct_dir);
                  LoadDirParallel(dirs);
-                 
+                 */
 
                 //方法2
 
-              //  move2NormalParallelAndEnqueue();
+                move2NormalParallelAndEnqueue();
                 
                 addCompleted = true;
 
@@ -779,9 +779,9 @@ namespace testClouder28
                 model.AddRCnt(rcnt);
                 ids.Clear();
 
-                while (hitDwQueue.Count > 4 * 100000)
+                while (hitDwQueue.Count > 5 * 100000)
                 {
-                    Console.WriteLine("解析线程{0} 休眠{1}秒钟", Thread.CurrentThread.ManagedThreadId, 5);
+                    Console.WriteLine("解析线程{0} 等待输出 休眠{1}秒钟", Thread.CurrentThread.ManagedThreadId, 5);
                     Thread.Sleep(1000 * 5);
                 }
 
