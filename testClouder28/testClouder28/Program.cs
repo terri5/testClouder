@@ -57,7 +57,7 @@ namespace testClouder28
 
         public static System.Collections.Generic.HashSet<string> file2Handle = new System.Collections.Generic.HashSet<string>();
 
-        public static string date2Handle = "20160830";
+        public static string date2Handle = "20160824";
         public const int step = 100000;
         public const long G = 1024 * 1024 * 1024;
         public const long MAX_CACHE= 20 * G;
@@ -168,6 +168,7 @@ namespace testClouder28
             {
                 Stopwatch watch = new Stopwatch();
                 watch.Start();//首先启动监控线程
+                initArgs(args);
                 initLogFolders();//初始化相关目录
 
                 log.WriteLine(date2Handle + "开始时间{0},处理日期{1}", DateTime.Now, date2Handle);
@@ -181,7 +182,7 @@ namespace testClouder28
                 // testHbaseWrite(20160817+"");
                  // readFile2Dw(date2Handle);
                 
-               // anlylogFromBlob(date2Handle);
+                anlylogFromBlob(date2Handle);
                 anlylog();
 
 
@@ -221,6 +222,28 @@ namespace testClouder28
 
 
         }
+
+        private static void initArgs(string[] args)
+        {
+            if (args.Length > 0) {
+                if (DataExtUtil.IsInt(args[0]) && args[0].Length!=8) {
+                    Console.Error.WriteLine("非法的参数 day_id:"+args[0]);
+                    Console.ReadKey();
+                    System.Environment.Exit(-1);
+                };
+                date2Handle = args[0];
+                if (args.Length > 1)
+                    if (args[1].Length == 1)
+                    {
+                        driver = args[1] + ":";
+                    } else {
+                        Console.Error.WriteLine("非法的参数 driver:" + args[0]);
+                        Console.ReadKey();
+                        System.Environment.Exit(-1);
+                    }
+            }
+        }
+
         public static void anlylogFromBlob(string day_id) {
               DownloadBlob(day_id);
             //listBlob();
@@ -296,8 +319,8 @@ namespace testClouder28
                             */
 
                 OutObj tHitObj = new OutObj();
-                //tHitObj.Queue = hitDwFileQueue;
-                tHitObj.Hbasequeue = hitDwQueue;
+                tHitObj.Queue = hitDwFileQueue;
+              //  tHitObj.Hbasequeue = hitDwQueue;
                 tHitObj.OutStream = hit2f;
                 tHitObj.Model = hitModel;
                 tHitObj.Batch = 100000;
@@ -305,9 +328,11 @@ namespace testClouder28
                 Thread thHit = new Thread(PipelineStages.Write2DwFileThread);
                 thHit.Start(tHitObj);
                 */
+
                 Thread thHit = new Thread(PipelineStages.Write2Dw);
                 thHit.Start(tHitObj);
-         
+               
+
 
 
                 /*
@@ -632,7 +657,7 @@ namespace testClouder28
             {
                 reader = new StreamReader(f.Fullname);
                 //              await  handleLog2Hbase(f.Dmac, reader,"","", model);
-                //          handleLog4Dw(f.Dmac, reader, "", "", model);
+              //   handleLog4Dw(f.Dmac, reader, "", "", model);
                 handleLog4WithTransformDw(f.Dmac, reader, "", "", model);
             }
             catch (Exception e)
