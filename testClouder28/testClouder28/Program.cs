@@ -57,7 +57,7 @@ namespace testClouder28
 
         public static System.Collections.Generic.HashSet<string> file2Handle = new System.Collections.Generic.HashSet<string>();
 
-        public static string date2Handle = "20160824";
+        public static string date2Handle = "20160831";
         public const int step = 100000;
         public const long G = 1024 * 1024 * 1024;
         public const long MAX_CACHE= 20 * G;
@@ -182,7 +182,7 @@ namespace testClouder28
                 // testHbaseWrite(20160817+"");
                  // readFile2Dw(date2Handle);
                 
-                anlylogFromBlob(date2Handle);
+            //    anlylogFromBlob(date2Handle);
                 anlylog();
 
 
@@ -241,11 +241,15 @@ namespace testClouder28
                         Console.ReadKey();
                         System.Environment.Exit(-1);
                     }
-            }
-        }
+          correct_dir = driver + @"\cor" + date2Handle.Substring(4);
+          orgin_dir = driver + "\\" + date2Handle.Substring(4);
+
+    }
+}
 
         public static void anlylogFromBlob(string day_id) {
               DownloadBlob(day_id);
+              log.WriteLine("{0} 共下载 目录{1} 个", day_id, downloadDir.Count);
             //listBlob();
 
         }
@@ -320,18 +324,19 @@ namespace testClouder28
 
                 OutObj tHitObj = new OutObj();
                 tHitObj.Queue = hitDwFileQueue;
-              //  tHitObj.Hbasequeue = hitDwQueue;
+                tHitObj.Hbasequeue = hitDwQueue;
                 tHitObj.OutStream = hit2f;
                 tHitObj.Model = hitModel;
                 tHitObj.Batch = 100000;
                 /*
-                Thread thHit = new Thread(PipelineStages.Write2DwFileThread);
-                thHit.Start(tHitObj);
-                */
+              Thread thHit = new Thread(PipelineStages.Write2DwFileThread);
+              thHit.Start(tHitObj);
+              */
 
                 Thread thHit = new Thread(PipelineStages.Write2Dw);
-                thHit.Start(tHitObj);
-               
+               thHit.Start(tHitObj);
+              
+
 
 
 
@@ -657,8 +662,8 @@ namespace testClouder28
             {
                 reader = new StreamReader(f.Fullname);
                 //              await  handleLog2Hbase(f.Dmac, reader,"","", model);
-              //   handleLog4Dw(f.Dmac, reader, "", "", model);
-                handleLog4WithTransformDw(f.Dmac, reader, "", "", model);
+               //  handleLog4Dw(f.Dmac, reader, "", "", model);
+               handleLog4WithTransformDw(f.Dmac, reader, "", "", model);
             }
             catch (Exception e)
             {
