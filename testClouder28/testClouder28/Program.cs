@@ -57,7 +57,7 @@ namespace testClouder28
 
         public static System.Collections.Generic.HashSet<string> file2Handle = new System.Collections.Generic.HashSet<string>();
 
-        public static string date2Handle = "20160831";
+        public static string date2Handle = "20160901";
         public const int step = 100000;
         public const long G = 1024 * 1024 * 1024;
         public const long MAX_CACHE= 20 * G;
@@ -67,7 +67,7 @@ namespace testClouder28
         
 
 
-        public const int AnlyzeThreadCnt = 32;//总解析线程数
+        public const int AnlyzeThreadCnt = 16;//总解析线程数
         public const int Write2HbaseThreadCnt = 32;//总写hbase线程数
 
         private static StreamWriter uv2f = null;
@@ -83,12 +83,12 @@ namespace testClouder28
         /**
         * 整理后的文件目录
         */
-        public static string correct_dir = driver + @"\cor" + date2Handle.Substring(4);
- 
+        public static string correct_dir = driver + @"\cor" + date2Handle;
+
         /**
          * blob文件目录
          */
-        public static string orgin_dir = driver + "\\" + date2Handle.Substring(4);
+        public static string orgin_dir = driver + "\\" + date2Handle;
 
 
         private static string dataDirRoot = driver + @"\test-data\";
@@ -96,7 +96,7 @@ namespace testClouder28
         
         private static void initFolders()
         {
-            string dataDir =dataDirRoot + date2Handle.Substring(4);
+            string dataDir =dataDirRoot + date2Handle;
             if (!Directory.Exists(dataDir)) {
                 Directory.CreateDirectory(dataDir);//创建新路径
             }
@@ -146,6 +146,7 @@ namespace testClouder28
 
 
         public static string validTarStr = date2Handle.Substring(2, 6) + "\\d{6}\\S{7}$";
+        public static string blobContainer = date2Handle.Substring(0,8);
         public static int handleHitFileCnt = 0;
         public static int handlePvFileCnt = 0;
         public static int handlePv2FileCnt = 0;
@@ -182,7 +183,7 @@ namespace testClouder28
                 // testHbaseWrite(20160817+"");
                  // readFile2Dw(date2Handle);
                 
-            //    anlylogFromBlob(date2Handle);
+                anlylogFromBlob(blobContainer);
                 anlylog();
 
 
@@ -225,13 +226,20 @@ namespace testClouder28
 
         private static void initArgs(string[] args)
         {
+         
             if (args.Length > 0) {
-                if (DataExtUtil.IsInt(args[0]) && args[0].Length!=8) {
-                    Console.Error.WriteLine("非法的参数 day_id:"+args[0]);
+                if (DataExtUtil.IsInt(args[0]) && args[0].Length!=8 && args[0].Length != 10) {
+                    Console.Error.WriteLine("非法的参数 day_id or day_hour:"+args[0]);
                     Console.ReadKey();
                     System.Environment.Exit(-1);
                 };
+                
                 date2Handle = args[0];
+
+                if(args[0].Length == 10) validTarStr = date2Handle.Substring(2,8) + "\\d{4}\\S{7}$";
+                if(args[0].Length==8) validTarStr = date2Handle.Substring(2, 6) + "\\d{6}\\S{7}$";
+                blobContainer = date2Handle.Substring(0, 8);
+
                 if (args.Length > 1)
                     if (args[1].Length == 1)
                     {
@@ -241,11 +249,14 @@ namespace testClouder28
                         Console.ReadKey();
                         System.Environment.Exit(-1);
                     }
-          correct_dir = driver + @"\cor" + date2Handle.Substring(4);
-          orgin_dir = driver + "\\" + date2Handle.Substring(4);
+              correct_dir = driver + @"\cor" + date2Handle;
+              orgin_dir = driver + "\\" + date2Handle;
+//                Console.WriteLine("regex: {0}", validTarStr);
+//                Console.WriteLine("参数个数是：{0} 值是{1}", args.Length, args[0]);
 
-    }
-}
+            }
+            Console.WriteLine("blobContainer:" + blobContainer);
+        }
 
         public static void anlylogFromBlob(string day_id) {
               DownloadBlob(day_id);
@@ -640,15 +651,17 @@ namespace testClouder28
         }
         public static Boolean IsValidTar(string tarName)
         {
+                          
             if (Regex.IsMatch(tarName.Replace("-", ""), validTarStr))
             {
+                Console.WriteLine("{0} {1} {2}", true, tarName, validTarStr);
                 return true;
             }
             else {
-              //  Console.Error.WriteLine("非法的日期文件:" + tarName);
+                Console.WriteLine("{0} {1} {2}", false, tarName, validTarStr);
+                //  Console.Error.WriteLine("非法的日期文件:" + tarName);
                 return false;
             }
-     
 
 
         }
@@ -1338,13 +1351,14 @@ namespace testClouder28
                 {
                     CloudBlockBlob blob = (CloudBlockBlob)item;
                     string tarName = blob.Name.Substring(blob.Name.IndexOf("/") + 1);
+       //             Console.WriteLine(blob.Properties.LastModified.Value.LocalDateTime.ToString("yyyyMMddHH"));
+      //              if (blob.Properties.LastModified.Value.LocalDateTime.ToString("yyyyMMddHH").Substring(0,date2Handle.Length).Equals(date2Handle))     
                     if (IsValidTar(tarName))
                     {
                         if (tasks.Count < 1000)
                         {
-
                             // Task<bool> t = downloadSpecifyBlob(blob, @"e:\blob\20160826\" + blob.Name.Substring(blob.Name.IndexOf("/") + 1));
-                            string path = driver + blob.Uri.ToString().Substring(blob.Uri.ToString().IndexOf("/"+ day_id) + 5);
+                            string path = driver +"/"+date2Handle+blob.Uri.ToString().Substring(blob.Uri.ToString().IndexOf("/"+day_id) +9);
                             if (!Directory.Exists(path.Substring(0, path.LastIndexOf("/"))))//如果目录不存在，则创建
                             {
                                 Console.WriteLine("path=" + path);
@@ -1352,7 +1366,6 @@ namespace testClouder28
                             }
                             if (downloadDir.Add(path.Substring(0, path.LastIndexOf("/"))))
                                     Console.WriteLine("已下载{0}个目录", downloadDir.Count);
-                            
                             Task<bool> t = downloadSpecifyBlob(blob,path);
                             tasks.Add(t);                          
                             continue;
