@@ -168,6 +168,11 @@ namespace AlalyzeLog.Worker.Model
             {
                 dateStr = dateStr.Substring(0, dateStr.Length - 6); //去掉文本行中的时区标示信息
                 DateTime date = DateTime.ParseExact(dateStr, "dd/MMM/yyyy:HH:mm:ss", DateTimeFormatInfo.InvariantInfo);
+                if (ConvertUtil.LocalToUTC8(DateTime.Now).Subtract(date).TotalDays > 30)
+                {
+                    //     Trace.TraceInformation(" 3 "+ dateStr+ "2 "+date + " ------->丢弃");
+                    return null; //过滤掉15天前的数据
+                }
                 BsonDocument obj = new BsonDocument();
                 dmac = StringUtil.FormatMacString(dmac).Replace("-", "").Replace(":", "");
                 obj.Add("dmac", dmac);
@@ -199,6 +204,7 @@ namespace AlalyzeLog.Worker.Model
                         string v = Regex.Match(str, "\\s{0,}(HTTP|http|Http)/\\d{0,}.\\d{0,}").Value;
                         httpVer = v.Trim();
                         httpUri = str.Replace(m, "").Replace(v, "");
+                   //     Program.log.WriteLine("0->{0} 1->{1} 2->{2} 3-->{3}", m, v,str,line);
                         blnRequest = true;
                     }
 

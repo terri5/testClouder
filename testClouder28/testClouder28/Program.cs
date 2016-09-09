@@ -9,6 +9,8 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using org.apache.hadoop.hbase.rest.protobuf.generated;
+using RedisStudy;
+using ServiceStack.Redis;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -57,7 +59,7 @@ namespace testClouder28
 
         public static System.Collections.Generic.HashSet<string> file2Handle = new System.Collections.Generic.HashSet<string>();
 
-        public static string date2Handle = "20160901";
+        public static string date2Handle = "20160905";
         public const int step = 100000;
         public const long G = 1024 * 1024 * 1024;
         public const long MAX_CACHE= 20 * G;
@@ -67,7 +69,7 @@ namespace testClouder28
         
 
 
-        public const int AnlyzeThreadCnt = 16;//总解析线程数
+        public const int AnlyzeThreadCnt =32;//总解析线程数
         public const int Write2HbaseThreadCnt = 32;//总写hbase线程数
 
         private static StreamWriter uv2f = null;
@@ -78,7 +80,7 @@ namespace testClouder28
         public static FileStream log_err = null;
         public static HashSet<string> downloadDir = new HashSet<string>();
 
-        public static string driver = "G:";
+        public static string driver = "e:";
         public static ConcurrentQueue<Stream> memQueue = new ConcurrentQueue<Stream>();
         /**
         * 整理后的文件目录
@@ -198,7 +200,7 @@ namespace testClouder28
                 log.WriteLine("处理文档数量{0},pv:{1},uv:{2},hit:{3}", handleFileCnt, handlePvFileCnt, handleUvFileCnt, handleHitFileCnt);
                 log.WriteLine("处理有效记录数量 pv:{0},uv:{1},hit:{2}", pvModel.GetCnt(), uvModel.GetCnt(), hitModel.GetCnt());
                 log.WriteLine("耗费{0}天{1}小时{2}分钟{3}秒", timeSpan.Days, timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds);
-                Console.ReadKey();
+               // Console.ReadKey();
             }
             catch (Exception e)
             {
@@ -302,25 +304,26 @@ namespace testClouder28
 
                 }
 
-                /*
-            OutObj tPvObj = new OutObj();
-            tPvObj.Queue = pvDwFileQueue;
-            tPvObj.OutStream = pv2f;
-            tPvObj.Batch = 100000;
+                /*   
+             OutObj tPvObj = new OutObj();
+             tPvObj.Queue = pvDwFileQueue;
+             tPvObj.OutStream = pv2f;
+             tPvObj.Batch = 100000;
 
-            Thread thPvW = new Thread(PipelineStages.Write2DwFileThread);
-            thPvW.Start(tPvObj);
-            */
+             Thread thPvW = new Thread(PipelineStages.Write2DwFileThread);
+             thPvW.Start(tPvObj);
 
 
-                /*
-               OutObj tPv2Obj = new OutObj();
-               tPv2Obj.Queue = pv2DwFileQueue;
-               tPv2Obj.OutStream = pv22f;
-               tPv2Obj.Batch = 100000;
 
-               Thread thPv2 = new Thread(PipelineStages.Write2DwFileThread);
-               thPv2.Start(tPv2Obj);
+
+
+                OutObj tPv2Obj = new OutObj();
+                tPv2Obj.Queue = pv2DwFileQueue;
+                tPv2Obj.OutStream = pv22f;
+                tPv2Obj.Batch = 100000;
+
+                Thread thPv2 = new Thread(PipelineStages.Write2DwFileThread);
+                thPv2.Start(tPv2Obj);
                */
                 /*
 
@@ -332,21 +335,23 @@ namespace testClouder28
                             Thread thUv = new Thread(PipelineStages.Write2DwFileThread);
                             thUv.Start(tUvObj);
                             */
-
-                OutObj tHitObj = new OutObj();
-                tHitObj.Queue = hitDwFileQueue;
-                tHitObj.Hbasequeue = hitDwQueue;
-                tHitObj.OutStream = hit2f;
-                tHitObj.Model = hitModel;
-                tHitObj.Batch = 100000;
+                
+                               OutObj tHitObj = new OutObj();
+                               tHitObj.Queue = hitDwFileQueue;
+                               tHitObj.Hbasequeue = hitDwQueue;
+                               tHitObj.OutStream = hit2f;
+                               tHitObj.Model = hitModel;
+                               tHitObj.Batch = 100000;
                 /*
-              Thread thHit = new Thread(PipelineStages.Write2DwFileThread);
-              thHit.Start(tHitObj);
-              */
+                             Thread thHit = new Thread(PipelineStages.Write2DwFileThread);
+                             thHit.Start(tHitObj);
+                             */
 
-                Thread thHit = new Thread(PipelineStages.Write2Dw);
-               thHit.Start(tHitObj);
-              
+
+                              Thread thHit = new Thread(PipelineStages.Write2Dw);
+                              thHit.Start(tHitObj);
+                               
+
 
 
 
@@ -368,7 +373,7 @@ namespace testClouder28
                 //方法2
 
                 move2NormalParallelAndEnqueue();
-                
+
                 addCompleted = true;
 
                 foreach (Thread t in analyzedThreads)
@@ -377,11 +382,11 @@ namespace testClouder28
                 }
 
                 anlyzeCompleted = true;
-                //thPvW.Join();
-               // thPv2.Join();
+               // thPvW.Join();
+                //thPv2.Join();
                 //  thUv.Join();
 
-                thHit.Join();
+               thHit.Join();
 
 
                 /*
@@ -578,9 +583,34 @@ namespace testClouder28
             }
             
         }
+        public void stataicTestRandom() {
+            StringBuilder sb = new StringBuilder();
 
+            for (int i = 0; i < 2000000; i++)
+            {
+                /*
+                lock(syncHitF){
+                    sb.Append(PipelineStages.rand.Next(100).ToString("D2")).Append("/n");
+                }
+                */
+                sb.Append(ConvertUtil.getRealNumber(100).ToString("D2")).Append("\n");
+                if (i % 500000 == 0)
+                    lock (syncFileCount)
+                    {
+                        log.WriteLine(sb.ToString());
+                        log.Flush();
+                        sb = new StringBuilder();
+                    }
+
+            }
+            lock (syncFileCount)
+            {
+                Console.WriteLine("线程{0} 完成", Thread.CurrentThread.ManagedThreadId);
+            }
+        }
         public void LogAnly(Object obj)
         {
+           
             var input = obj as ThreadInfo;
             IHBaseModel model = null;
             while (true)
@@ -628,8 +658,9 @@ namespace testClouder28
                                 lock (syncHitF)
                                 {
                                     handleHitFileCnt++;
+                                  
                                 }
-                                hit_dmac.Add(t.Dmac);
+                                    hit_dmac.Add(t.Dmac);
                                 break;
                         }
 
@@ -649,16 +680,22 @@ namespace testClouder28
             }
 
         }
+
+
+        private static bool IsTrain(string dmac)
+        {
+            return Regex.IsMatch(dmac.ToUpper(), "^(GD200|HM)");
+        }
         public static Boolean IsValidTar(string tarName)
         {
                           
-            if (Regex.IsMatch(tarName.Replace("-", ""), validTarStr))
+            if (Regex.IsMatch(tarName.Replace("-", "").Replace(":",""), validTarStr))
             {
-                Console.WriteLine("{0} {1} {2}", true, tarName, validTarStr);
+             //   Console.WriteLine("{0} {1} {2}", true, tarName, validTarStr);
                 return true;
             }
             else {
-                Console.WriteLine("{0} {1} {2}", false, tarName, validTarStr);
+             // Console.WriteLine("{0} {1} {2}", false, tarName, validTarStr);
                 //  Console.Error.WriteLine("非法的日期文件:" + tarName);
                 return false;
             }
@@ -675,8 +712,8 @@ namespace testClouder28
             {
                 reader = new StreamReader(f.Fullname);
                 //              await  handleLog2Hbase(f.Dmac, reader,"","", model);
-               //  handleLog4Dw(f.Dmac, reader, "", "", model);
-               handleLog4WithTransformDw(f.Dmac, reader, "", "", model);
+              //  handleLog4Dw(f.Dmac, reader, "", "", model);
+              handleLog4WithTransformDw(f.Dmac, reader, "", "", model);
             }
             catch (Exception e)
             {

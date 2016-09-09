@@ -75,3 +75,15 @@ C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\obj\x64\Debug\testCloude
 C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\x64\Debug\MongoDB.Driver.Legacy.dll
 C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\x64\Debug\MongoDB.Driver.Core.xml
 C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\x64\Debug\MongoDB.Driver.Legacy.xml
+C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\x64\Debug\ServiceStack.Common.dll
+C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\x64\Debug\ServiceStack.Interfaces.dll
+C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\x64\Debug\ServiceStack.Redis.dll
+C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\x64\Debug\ServiceStack.Text.dll
+C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\x64\Debug\ServiceStack.Common.pdb
+C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\x64\Debug\ServiceStack.Common.xml
+C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\x64\Debug\ServiceStack.Interfaces.pdb
+C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\x64\Debug\ServiceStack.Interfaces.xml
+C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\x64\Debug\ServiceStack.Redis.xml
+C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\x64\Debug\ServiceStack.Text.pdb
+C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\x64\Debug\ServiceStack.Text.xml
+C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\obj\x64\Debug\testClouder28.csprojResolveAssemblyReference.cache

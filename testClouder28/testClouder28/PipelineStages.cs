@@ -20,6 +20,7 @@ namespace testClouder28
         public static int r_cnt = 0;
         private static object syncRoot = new object();
         private static object syncRootLog = new object();
+        public static Random rand=new Random();
         
 
         public static  Task WriteToTask(OutObj obj)

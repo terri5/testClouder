@@ -61,9 +61,22 @@ namespace AlalyzeLog.DBTools
             return null;
         }
 
-     
+        private static int GetRandomSeed()
+        {
+            byte[] bytes = new byte[4];
+            System.Security.Cryptography.RNGCryptoServiceProvider rng = new System.Security.Cryptography.RNGCryptoServiceProvider();
+            rng.GetBytes(bytes);
+            return BitConverter.ToInt32(bytes, 0);
+        }
+        public static int getRealNumber(int top)
+        {
+            int k = 0;
+            while ((k = Math.Abs(GetRandomSeed()) % (top + 1)) == 0) ;
+            return k - 1;
+        }
 
-       
+
+
         public static String reverseStr(string str) {
             if (str == null) return null;
             return new string(str.ToArray().Reverse().ToArray());
