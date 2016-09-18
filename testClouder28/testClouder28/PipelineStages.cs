@@ -198,7 +198,7 @@ namespace testClouder28
                     Program.log.WriteLine("当前已处理日志文件数量{0},pv:{1},pv2:{2}，uv:{3} hit:{4}", (Program.handlePvFileCnt + Program.handlePv2FileCnt + Program.handleUvFileCnt + Program.handleHitFileCnt), Program.handlePvFileCnt, Program.handlePv2FileCnt, Program.handleUvFileCnt, Program.handleHitFileCnt);
                     Program.log.WriteLine("当前待写入记录数{0},pv:{1},pv2:{2},uv:{3} hit:{4}", (Program.pvDwFileQueue.Count + Program.pv2DwFileQueue.Count + Program.uvDwFileQueue.Count + Program.hitDwFileQueue.Count), Program.pvDwFileQueue.Count, Program.pv2DwFileQueue.Count,Program.uvDwFileQueue.Count, Program.hitDwFileQueue.Count);
                     Program.log.WriteLine("去重之前的记录数：pv:{0},pv2:{1},uv:{2},hit:{3}", Program.pvModel.GetRCnt(), Program.pv2Model.GetRCnt(), Program.uvModel.GetRCnt(), Program.hitModel.GetRCnt());
-                    Program.log.WriteLine("有效记录数：pv:{0},pv2:{1},uv:{2},hit:{3}", Program.pvModel.GetCnt(),Program.pv2Model.GetCnt(),Program.uvModel.GetCnt(), Program.hitModel.GetCnt());
+                    Program.log.WriteLine("有效记录数：pv:{0},pv2:{1},uv:{2},hit:{3}", Program.pvModel.GetCnt(),Program.pv2Model.GetRCnt(),Program.uvModel.GetCnt(), Program.hitModel.GetCnt());
                     Program.log.Flush();
                 }
               

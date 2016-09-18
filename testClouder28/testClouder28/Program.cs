@@ -24,8 +24,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-
-
+using testClouder28.Model;
 
 namespace testClouder28
 {
@@ -59,7 +58,7 @@ namespace testClouder28
 
         public static System.Collections.Generic.HashSet<string> file2Handle = new System.Collections.Generic.HashSet<string>();
 
-        public static string date2Handle = "20160905";
+        public static string date2Handle = "2016091808";
         public const int step = 100000;
         public const long G = 1024 * 1024 * 1024;
         public const long MAX_CACHE= 20 * G;
@@ -135,7 +134,7 @@ namespace testClouder28
         public static Hit hitModel = new Hit();
         public static UV uvModel = new UV();
         public static PV pvModel = new PV();
-        public static PV2 pv2Model = new PV2();
+        public static NetMon pv2Model = new NetMon();
 
         public static ConcurrentQueue<string> pvDwFileQueue = pvModel.GetDwFileQueue();
         public static ConcurrentQueue<string> pv2DwFileQueue = pv2Model.GetDwFileQueue();
@@ -269,13 +268,14 @@ namespace testClouder28
         public static void anlylog() {
             try
             {
-//                file2Handle.Add(LogFileInfo.HIT_FILE);  //hit 
+                //                file2Handle.Add(LogFileInfo.HIT_FILE);  //hit 
 
-//                       file2Handle.Add(LogFileInfo.UV_FILE);  //uv ok!
+                //                       file2Handle.Add(LogFileInfo.UV_FILE);  //uv ok!
 
-                file2Handle.Add(LogFileInfo.PV1_FILE);
-//                file2Handle.Add(LogFileInfo.PROXY_PV_FILE);
-                file2Handle.Add(LogFileInfo.PV2_FILE);   //pv
+                //                file2Handle.Add(LogFileInfo.PV1_FILE);
+                //                file2Handle.Add(LogFileInfo.PROXY_PV_FILE);
+                //               file2Handle.Add(LogFileInfo.PV2_FILE);   //pv
+                file2Handle.Add(LogFileInfo.PV3_FILE);
                 initFolders();
                 string fileStrs = "";
                 foreach (string f in file2Handle) fileStrs += ":" + f;
@@ -304,27 +304,27 @@ namespace testClouder28
 
                 }
 
-                  
+                /*     
              OutObj tPvObj = new OutObj();
              tPvObj.Queue = pvDwFileQueue;
              tPvObj.OutStream = pv2f;
-             tPvObj.Batch = 100000;
+             tPvObj.Batch = 100;
 
              Thread thPvW = new Thread(PipelineStages.Write2DwFileThread);
              thPvW.Start(tPvObj);
+              */
 
 
 
-                /*
 
-                               OutObj tPv2Obj = new OutObj();
+                OutObj tPv2Obj = new OutObj();
                                tPv2Obj.Queue = pv2DwFileQueue;
                                tPv2Obj.OutStream = pv22f;
-                               tPv2Obj.Batch = 100000;
+                               tPv2Obj.Batch = 1000;
 
                                Thread thPv2 = new Thread(PipelineStages.Write2DwFileThread);
                                thPv2.Start(tPv2Obj);
-                              */
+                             
                 /*
 
                             OutObj tUvObj = new OutObj();
@@ -348,9 +348,9 @@ namespace testClouder28
                              */
 
 
-                           //   Thread thHit = new Thread(PipelineStages.Write2Dw);
-                           //   thHit.Start(tHitObj);
-                               
+                //   Thread thHit = new Thread(PipelineStages.Write2Dw);
+                //   thHit.Start(tHitObj);
+
 
 
 
@@ -365,14 +365,14 @@ namespace testClouder28
                 */
 
                 //第一种方法
-                /*
-                 var dirs = Directory.GetDirectories(correct_dir);
+
+                var dirs = Directory.GetDirectories(correct_dir);
                  LoadDirParallel(dirs);
-                 */
+                 
 
                 //方法2
 
-                move2NormalParallelAndEnqueue();
+              //  move2NormalParallelAndEnqueue();
 
                 addCompleted = true;
 
@@ -382,8 +382,8 @@ namespace testClouder28
                 }
 
                 anlyzeCompleted = true;
-                thPvW.Join();
-                //thPv2.Join();
+              //  thPvW.Join();
+                thPv2.Join();
                 //  thUv.Join();
 
               // thHit.Join();

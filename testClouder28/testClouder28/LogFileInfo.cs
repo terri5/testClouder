@@ -8,6 +8,8 @@
         public const string FILE_TYPE_HIT ="hit";
         public const string PV1_FILE = "localhost.log";
         public const string PV2_FILE = "pv_http.log";
+        public const string PV3_FILE = "netmon.log";
+
         public const string PROXY_PV_FILE = "nginxproxy.log";
         public const string UV_FILE = "uv_time_flow.log";
         public const string HIT_FILE = "hit.log";
@@ -20,9 +22,11 @@
             switch(Fname){
                 case PV1_FILE:
                 case PV2_FILE:
-                    return FILE_TYPE_PV;
                 case PROXY_PV_FILE:
+                    return FILE_TYPE_PV;
+                case PV3_FILE:
                     return FILE_TYPE_PV2;
+               
                 case UV_FILE:
                     return FILE_TYPE_UV;
                 case HIT_FILE:
