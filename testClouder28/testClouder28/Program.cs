@@ -69,7 +69,7 @@ namespace testClouder28
         
 
 
-        public const int AnlyzeThreadCnt =32;//总解析线程数
+        public const int AnlyzeThreadCnt =8;//总解析线程数
         public const int Write2HbaseThreadCnt = 32;//总写hbase线程数
 
         private static StreamWriter uv2f = null;
@@ -185,7 +185,7 @@ namespace testClouder28
                 // testHbaseWrite(20160817+"");
                  // readFile2Dw(date2Handle);
                 
-                anlylogFromBlob(blobContainer);
+                //anlylogFromBlob(blobContainer);
                 anlylog();
 
 
@@ -269,7 +269,7 @@ namespace testClouder28
         public static void anlylog() {
             try
             {
-                file2Handle.Add(LogFileInfo.HIT_FILE);  //hit 
+//                file2Handle.Add(LogFileInfo.HIT_FILE);  //hit 
 
 //                       file2Handle.Add(LogFileInfo.UV_FILE);  //uv ok!
 
@@ -304,7 +304,7 @@ namespace testClouder28
 
                 }
 
-                /*   
+                  
              OutObj tPvObj = new OutObj();
              tPvObj.Queue = pvDwFileQueue;
              tPvObj.OutStream = pv2f;
@@ -315,16 +315,16 @@ namespace testClouder28
 
 
 
+                /*
 
+                               OutObj tPv2Obj = new OutObj();
+                               tPv2Obj.Queue = pv2DwFileQueue;
+                               tPv2Obj.OutStream = pv22f;
+                               tPv2Obj.Batch = 100000;
 
-                OutObj tPv2Obj = new OutObj();
-                tPv2Obj.Queue = pv2DwFileQueue;
-                tPv2Obj.OutStream = pv22f;
-                tPv2Obj.Batch = 100000;
-
-                Thread thPv2 = new Thread(PipelineStages.Write2DwFileThread);
-                thPv2.Start(tPv2Obj);
-               */
+                               Thread thPv2 = new Thread(PipelineStages.Write2DwFileThread);
+                               thPv2.Start(tPv2Obj);
+                              */
                 /*
 
                             OutObj tUvObj = new OutObj();
@@ -334,22 +334,22 @@ namespace testClouder28
 
                             Thread thUv = new Thread(PipelineStages.Write2DwFileThread);
                             thUv.Start(tUvObj);
-                            */
-                
-                               OutObj tHitObj = new OutObj();
+                           
+
+                OutObj tHitObj = new OutObj();
                                tHitObj.Queue = hitDwFileQueue;
                                tHitObj.Hbasequeue = hitDwQueue;
                                tHitObj.OutStream = hit2f;
                                tHitObj.Model = hitModel;
                                tHitObj.Batch = 100000;
-                /*
+               
                              Thread thHit = new Thread(PipelineStages.Write2DwFileThread);
                              thHit.Start(tHitObj);
                              */
 
 
-                              Thread thHit = new Thread(PipelineStages.Write2Dw);
-                              thHit.Start(tHitObj);
+                           //   Thread thHit = new Thread(PipelineStages.Write2Dw);
+                           //   thHit.Start(tHitObj);
                                
 
 
@@ -382,11 +382,11 @@ namespace testClouder28
                 }
 
                 anlyzeCompleted = true;
-               // thPvW.Join();
+                thPvW.Join();
                 //thPv2.Join();
                 //  thUv.Join();
 
-               thHit.Join();
+              // thHit.Join();
 
 
                 /*
@@ -403,14 +403,25 @@ namespace testClouder28
             }
             finally
             {
-                uv2f.Flush();
-                uv2f.Close();
-                pv2f.Flush();
-                pv2f.Close();
-                pv22f.Flush();
-                pv22f.Close();
-                hit2f.Flush();
-                hit2f.Close();
+                if (uv2f != null) {
+                    uv2f.Flush();
+                    uv2f.Close();
+                }
+                if (pv2f != null) {
+                    pv2f.Flush();
+                    pv2f.Close();
+                }
+                if (pv2f != null) {
+                    pv22f.Flush();
+                    pv22f.Close();
+                }
+                if (hit2f != null) {
+                    hit2f.Flush();
+                    hit2f.Close();
+                }
+             
+             
+              
 
             }
 
@@ -712,8 +723,8 @@ namespace testClouder28
             {
                 reader = new StreamReader(f.Fullname);
                 //              await  handleLog2Hbase(f.Dmac, reader,"","", model);
-              //  handleLog4Dw(f.Dmac, reader, "", "", model);
-              handleLog4WithTransformDw(f.Dmac, reader, "", "", model);
+                handleLog4Dw(f.Dmac, reader, "", "", model);
+              //handleLog4WithTransformDw(f.Dmac, reader, "", "", model);
             }
             catch (Exception e)
             {

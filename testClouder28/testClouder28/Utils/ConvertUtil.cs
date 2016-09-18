@@ -1,6 +1,8 @@
-﻿using MongoDB.Bson;
+﻿using analyzeLogWorkRole.Model;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
+using org.apache.hadoop.hbase.rest.protobuf.generated;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -75,7 +77,42 @@ namespace AlalyzeLog.DBTools
             return k - 1;
         }
 
+        public static CellSet.Row fillCellRowWithBson(IHBaseModel model, BsonDocument doc)
+        {
 
+            CellSet.Row cellSetRow = new CellSet.Row() { key = Encoding.UTF8.GetBytes(doc.GetValue("ROW_KEY").AsString) };
+            try
+            {
+                doc.Remove((ConvertUtil.Unique_Key));
+                foreach (string name in doc.Names)
+                {
+                    BsonValue v = doc.GetValue(name);
+                    switch (v.BsonType)
+                    {
+                        case BsonType.String:
+                            cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(model.GetColumnFamily() + ":" + name.ToUpper()), data = Encoding.UTF8.GetBytes(v.AsString) });
+                            break;
+                        case BsonType.Int64:
+                            cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(model.GetColumnFamily() + ":" + name.ToUpper()), data = Encoding.UTF8.GetBytes(v.AsInt64 + "") });
+                            break;
+                        case BsonType.Int32:
+                            cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(model.GetColumnFamily() + ":" + name.ToUpper()), data = Encoding.UTF8.GetBytes(v.AsInt32 + "") });
+                            break;
+                        case BsonType.Double:
+                            cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(model.GetColumnFamily() + ":" + name.ToUpper()), data = Encoding.UTF8.GetBytes(v.AsDouble + "") });
+                            break;
+                    }
+
+                }
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine(model.GetColumnFamily() + " covert to hbase model failed:" + doc + "\r\n" + e.Message + "\n" + e.StackTrace);
+                return null;
+            }
+            return cellSetRow;
+
+        }
 
         public static String reverseStr(string str) {
             if (str == null) return null;

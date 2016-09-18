@@ -86,4 +86,3 @@ C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\x64\Debug\ServiceSta
 C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\x64\Debug\ServiceStack.Redis.xml
 C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\x64\Debug\ServiceStack.Text.pdb
 C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\bin\x64\Debug\ServiceStack.Text.xml
-C:\Users\GZETL\Source\Repos\testClouder28\testClouder28\obj\x64\Debug\testClouder28.csprojResolveAssemblyReference.cache

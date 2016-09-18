@@ -104,35 +104,7 @@ namespace analyzeLogWorkRole.Model
 
         public CellSet.Row ToRowOfCellSet(BsonDocument hit)
         {
-            CellSet.Row cellSetRow = new CellSet.Row() { key = Encoding.UTF8.GetBytes(hit.GetValue(ROW_KEY).AsString) };
-            try
-            {
-                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + DMAC.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(DMAC).AsString) });
-                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + MAC.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(MAC, "").AsString) });
-                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + IP.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(IP).AsString) });
-                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + TIME.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(TIME).AsInt64 + "") });
-                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + HITID.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(HITID).AsString) });
-                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + REFHITID.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(REFHITID, "").AsString) });
-                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + UID.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(UID, "").AsString) });
-                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + POSIDX.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(POSIDX, "").AsString) });
-                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + PAGETIME.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(PAGETIME, "").AsString) });
-                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + PAGETIME2.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(PAGETIME2, "").AsString) });
-                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + VERSION.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(VERSION, "").AsString) });
-                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + DAY_ID.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(DAY_ID).AsInt32 + "") });
-                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + CLIENT_OS.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(CLIENT_OS,"").AsString) });
-                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + MOBILE_BRAND.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(MOBILE_BRAND,"").AsString) });
-                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + CLIENT_BROWSER.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(CLIENT_BROWSER,"").AsString) });
-                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + GROUPID.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(GROUPID,"").AsString + "") });
-                cellSetRow.values.Add(new Cell { column = Encoding.UTF8.GetBytes(COLUMN_FAMILY + ":" + INDB_DATETIME.ToUpper()), data = Encoding.UTF8.GetBytes(hit.GetValue(INDB_DATETIME).AsInt64 + "") });
-            }
-            catch (Exception e)
-            {
-                Trace.TraceError("Hit covert to hbase model failed:" + hit + "\r\n" + e.Message + "\n" + e.StackTrace);
-                CommonUtil.LogException(hit.GetValue(DMAC).AsString, e);
-                return null;
-            }
-
-            return cellSetRow;
+            return ConvertUtil.fillCellRowWithBson(this, hit);
         }
 
         public string GetTableName()
