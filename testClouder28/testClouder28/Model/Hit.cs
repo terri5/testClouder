@@ -31,6 +31,7 @@ namespace analyzeLogWorkRole.Model
         public const string POSIDX = "posIdx";
         public const string PAGETIME = "pageTime";
         public const string PAGETIME2 = "pageTime2";
+        public const string APP = "app";
         public const string DAY_ID = "day_id";
         public const string INDB_DATETIME = "INDB_DATETIME";
         public const string VERSION = "version";
@@ -186,6 +187,7 @@ namespace analyzeLogWorkRole.Model
                                           .Append(data.GetValue(CLIENT_BROWSER, "")).Append("\t")
                                           .Append(data.GetValue(VERSION, "")).Append("\t")
                                           .Append(data.GetValue(GROUPID, "")).Append("\t")
+                                          .Append(data.GetValue(APP, "")).Append("\t")
                                           .Append(data.GetValue(PAGETIME2, "")).AppendLine();
                                           
         }

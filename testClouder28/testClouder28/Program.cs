@@ -178,13 +178,14 @@ namespace testClouder28
 
                 Thread monitor = new Thread(PipelineStages.MonitorThread);//首先启动监控线程
                 monitor.Start(logfiles);
+               
 
 
 
                 // testHbaseWrite(20160817+"");
                  // readFile2Dw(date2Handle);
                 
-                //anlylogFromBlob(blobContainer);
+                anlylogFromBlob(blobContainer);
                 anlylog();
 
 
@@ -268,13 +269,13 @@ namespace testClouder28
         public static void anlylog() {
             try
             {
-                //                file2Handle.Add(LogFileInfo.HIT_FILE);  //hit 
+                                file2Handle.Add(LogFileInfo.HIT_FILE);  //hit 
 
                 //                       file2Handle.Add(LogFileInfo.UV_FILE);  //uv ok!
 
-                //                file2Handle.Add(LogFileInfo.PV1_FILE);
-                //                file2Handle.Add(LogFileInfo.PROXY_PV_FILE);
-                //               file2Handle.Add(LogFileInfo.PV2_FILE);   //pv
+                                file2Handle.Add(LogFileInfo.PV1_FILE);
+                                file2Handle.Add(LogFileInfo.PROXY_PV_FILE);
+                               file2Handle.Add(LogFileInfo.PV2_FILE);   //pv
                 file2Handle.Add(LogFileInfo.PV3_FILE);
                 initFolders();
                 string fileStrs = "";
@@ -316,7 +317,7 @@ namespace testClouder28
 
 
 
-
+                /*
                 OutObj tPv2Obj = new OutObj();
                                tPv2Obj.Queue = pv2DwFileQueue;
                                tPv2Obj.OutStream = pv22f;
@@ -325,8 +326,7 @@ namespace testClouder28
                                Thread thPv2 = new Thread(PipelineStages.Write2DwFileThread);
                                thPv2.Start(tPv2Obj);
                              
-                /*
-
+              
                             OutObj tUvObj = new OutObj();
                             tUvObj.Queue = uvDwFileQueue;
                             tUvObj.OutStream = uv2f;
@@ -335,21 +335,21 @@ namespace testClouder28
                             Thread thUv = new Thread(PipelineStages.Write2DwFileThread);
                             thUv.Start(tUvObj);
                            
-
+                */
                 OutObj tHitObj = new OutObj();
                                tHitObj.Queue = hitDwFileQueue;
                                tHitObj.Hbasequeue = hitDwQueue;
                                tHitObj.OutStream = hit2f;
                                tHitObj.Model = hitModel;
                                tHitObj.Batch = 100000;
-               
-                             Thread thHit = new Thread(PipelineStages.Write2DwFileThread);
-                             thHit.Start(tHitObj);
-                             */
+               /*
+               Thread thHit = new Thread(PipelineStages.Write2DwFileThread);
+                thHit.Start(tHitObj);
+                   */    
 
 
-                //   Thread thHit = new Thread(PipelineStages.Write2Dw);
-                //   thHit.Start(tHitObj);
+              Thread thHit = new Thread(PipelineStages.Write2Dw);
+              thHit.Start(tHitObj);
 
 
 
@@ -366,13 +366,13 @@ namespace testClouder28
 
                 //第一种方法
 
-                var dirs = Directory.GetDirectories(correct_dir);
-                 LoadDirParallel(dirs);
+             //   var dirs = Directory.GetDirectories(correct_dir);
+              //   LoadDirParallel(dirs);
                  
 
                 //方法2
 
-              //  move2NormalParallelAndEnqueue();
+               move2NormalParallelAndEnqueue();
 
                 addCompleted = true;
 
@@ -383,10 +383,10 @@ namespace testClouder28
 
                 anlyzeCompleted = true;
               //  thPvW.Join();
-                thPv2.Join();
+             //  thPv2.Join();
                 //  thUv.Join();
 
-              // thHit.Join();
+              thHit.Join();
 
 
                 /*
@@ -723,8 +723,8 @@ namespace testClouder28
             {
                 reader = new StreamReader(f.Fullname);
                 //              await  handleLog2Hbase(f.Dmac, reader,"","", model);
-                handleLog4Dw(f.Dmac, reader, "", "", model);
-              //handleLog4WithTransformDw(f.Dmac, reader, "", "", model);
+             //   handleLog4Dw(f.Dmac, reader, "", "", model);
+              handleLog4WithTransformDw(f.Dmac, reader, "", "", model);
             }
             catch (Exception e)
             {

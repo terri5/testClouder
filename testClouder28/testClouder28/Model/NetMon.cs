@@ -110,9 +110,9 @@ namespace testClouder28.Model
         }
         public BsonDocument LineToBson(string line, string dmac)
         {
-           string a="yyyy-MM-dd HH:mm:ss";
-            if(string.IsNullOrEmpty(line)) return null;
-            string[] fields = Regex.Replace(line," {2,}", " ").Split(' ');
+            if (string.IsNullOrEmpty(line))
+                return null;
+            string[] fields = Regex.Replace(line, " {2,}", " ").Split(' ');
             BsonDocument bson = new BsonDocument();
 
             int ix, jx;
@@ -125,8 +125,7 @@ namespace testClouder28.Model
             {
                 return null;
             }
-            DateTime? date = null;
-            date = DateTime.Parse(fields[0] + " " + fields[1]);
+            DateTime date = DateTime.Parse(fields[0] + " " + fields[1]);
             /*
             try
             {
@@ -138,16 +137,16 @@ namespace testClouder28.Model
             */
             if (date == null)
                 return null;
-        
+
             String umac = fields[2];
             if (umac.Length == 16)
                 umac = "0" + umac;
             if (umac.Length != 17)
             {
-                return null;;
+                return null; ;
             }
             umac = umac.ToLower();
-           
+
             // 分析URI
             String uri = "";
             String host = "";
@@ -179,13 +178,21 @@ namespace testClouder28.Model
             }
             if (string.IsNullOrEmpty(uri))
                 return null;
-            bson.Add(DATETIME_POINT, date?.ToString("yyyy-MM-dd HH:mm:ss"));
-            bson.Add(DAY_ID, date?.ToString("yyyyMMdd"));
+            string ip = fields[3];
+            string httpMethod = fields[6];
+
+            bson.Add(DATETIME_POINT, date.ToString("yyyy-MM-dd HH:mm:ss"));
+            bson.Add(DAY_ID, date.ToString("yyyyMMdd"));
             bson.Add(HTTP_HOST, host);
-            bson.Add(HTTP_URI,uri);
+            bson.Add(HTTP_URI, uri);
             bson.Add(MAC, umac);
+            bson.Add(IP, ip);
+            bson.Add(HTTP_METHOD, httpMethod);
             bson.Add(DMAC, dmac);
-            bson.Add(ConvertUtil.Unique_Key,"" +ConvertUtil.getRealNumber(100000));
+            bson.Add(IN_DB_DATETIME, ConvertUtil.LocalToUTC8(DateTime.Now).ToString("yyyyMMddHHmmss"));
+            bson.Add(ConvertUtil.Unique_Key, dmac + date.ToString("yyyyMMddHHmm").Substring(0, 11) + ip.Replace(".", "") + StringUtil.ConvertBase64(uri));
+            string rowkey = ConvertUtil.getHbaseRowKeyUnique(date, dmac);
+            bson.Add(ROW_KEY, rowkey);
             /*
             if (host.Contains("amol.com.cn"))   // 航美内部服务，不算外网访问
                 continue;
