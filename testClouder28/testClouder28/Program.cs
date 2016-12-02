@@ -118,6 +118,7 @@ namespace testClouder28
                 Console.WriteLine(correct_dir);
                 Directory.CreateDirectory(correct_dir);//创建新路径
             }
+          
             if (!Directory.Exists(dataDirRoot))
             {
                 Directory.CreateDirectory(dataDirRoot);//创建新路径
@@ -205,7 +206,7 @@ namespace testClouder28
             catch (Exception e)
             {
                 Console.Error.WriteLine(e.Message + "\r\n" + e.StackTrace);
-                WriteLog(e);
+                if(log_err!=null)   WriteLog(e);
                 Console.ReadKey();
             }
             finally{
@@ -253,8 +254,10 @@ namespace testClouder28
                     }
               correct_dir = driver + @"\cor" + date2Handle;
               orgin_dir = driver + "\\" + date2Handle;
-//                Console.WriteLine("regex: {0}", validTarStr);
-//                Console.WriteLine("参数个数是：{0} 值是{1}", args.Length, args[0]);
+              dataDirRoot = driver + @"\test-data\";
+
+                //                Console.WriteLine("regex: {0}", validTarStr);
+                //                Console.WriteLine("参数个数是：{0} 值是{1}", args.Length, args[0]);
 
             }
             Console.WriteLine("blobContainer:" + blobContainer);
@@ -272,11 +275,11 @@ namespace testClouder28
                                 file2Handle.Add(LogFileInfo.HIT_FILE);  //hit 
 
                 //                       file2Handle.Add(LogFileInfo.UV_FILE);  //uv ok!
-
-                                file2Handle.Add(LogFileInfo.PV1_FILE);
-                                file2Handle.Add(LogFileInfo.PROXY_PV_FILE);
-                               file2Handle.Add(LogFileInfo.PV2_FILE);   //pv
-                file2Handle.Add(LogFileInfo.PV3_FILE);
+                
+                //                file2Handle.Add(LogFileInfo.PV1_FILE);
+                //                file2Handle.Add(LogFileInfo.PROXY_PV_FILE);
+                //               file2Handle.Add(LogFileInfo.PV2_FILE);   //pv
+               // file2Handle.Add(LogFileInfo.PV3_FILE);
                 initFolders();
                 string fileStrs = "";
                 foreach (string f in file2Handle) fileStrs += ":" + f;
@@ -1218,7 +1221,7 @@ namespace testClouder28
                     }
                     catch (Exception e)
                     {
-                        Console.Error.WriteLine(outfile + "\n" + e.Message + "\n" + e.StackTrace);
+                        Console.Error.WriteLine(outfile + "\n" + e.Message + "\n" + e.StackTrace);                      
                         WriteLog(e);
                     }
                     finally {
